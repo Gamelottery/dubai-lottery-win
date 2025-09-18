@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { DepositWithdrawDialog } from "./DepositWithdrawDialog";
 
 interface LotteryHeaderProps {
   userName?: string;
@@ -7,6 +8,7 @@ interface LotteryHeaderProps {
   onDeposit: () => void;
   onWithdraw: () => void;
   onLogout: () => void;
+  userId?: string;
 }
 
 export const LotteryHeader = ({ 
@@ -15,7 +17,8 @@ export const LotteryHeader = ({
   balance, 
   onDeposit, 
   onWithdraw, 
-  onLogout 
+  onLogout,
+  userId = ""
 }: LotteryHeaderProps) => {
   return (
     <div className="lottery-card rounded-2xl shadow-card mb-8 overflow-hidden">
@@ -37,24 +40,18 @@ export const LotteryHeader = ({
                 {balance.toLocaleString()} ကျပ်
               </div>
             </div>
-            <Button 
-              variant="lottery-success" 
-              size="sm"
-              onClick={onDeposit}
-              className="text-xs"
-              title="ငွေသွင်း"
-            >
-              💰
-            </Button>
-            <Button 
-              variant="lottery-secondary" 
-              size="sm"
-              onClick={onWithdraw}
-              className="text-xs"
-              title="ငွေထုတ်"
-            >
-              🏧
-            </Button>
+            <DepositWithdrawDialog 
+              type="deposit" 
+              userBalance={balance} 
+              onSuccess={onDeposit} 
+              userId={userId}
+            />
+            <DepositWithdrawDialog 
+              type="withdrawal" 
+              userBalance={balance} 
+              onSuccess={onWithdraw} 
+              userId={userId}
+            />
             <Button 
               variant="lottery-outline" 
               size="sm"

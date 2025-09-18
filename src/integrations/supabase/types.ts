@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      bets: {
+        Row: {
+          amount: number
+          created_at: string
+          draw_time: string
+          id: string
+          number: string
+          status: string
+          user_id: string
+          winning_amount: number | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          draw_time: string
+          id?: string
+          number: string
+          status?: string
+          user_id: string
+          winning_amount?: number | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          draw_time?: string
+          id?: string
+          number?: string
+          status?: string
+          user_id?: string
+          winning_amount?: number | null
+        }
+        Relationships: []
+      }
       "KL Lottery": {
         Row: {
           Crome: string
@@ -26,6 +59,27 @@ export type Database = {
         Update: {
           Crome?: string
           id?: number
+        }
+        Relationships: []
+      }
+      lottery_results: {
+        Row: {
+          created_at: string
+          draw_time: string
+          id: string
+          result_number: string
+        }
+        Insert: {
+          created_at?: string
+          draw_time: string
+          id?: string
+          result_number: string
+        }
+        Update: {
+          created_at?: string
+          draw_time?: string
+          id?: string
+          result_number?: string
         }
         Relationships: []
       }
@@ -62,6 +116,39 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          name: string
+          phone: string
+          updated_at: string
+          user_id: string
+          user_type: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          name: string
+          phone: string
+          updated_at?: string
+          user_id: string
+          user_type?: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string
+          updated_at?: string
+          user_id?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
       Test: {
         Row: {
           created_at: string
@@ -74,6 +161,42 @@ export type Database = {
         Update: {
           created_at?: string
           "id 38081"?: number
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          method: string | null
+          reference: string | null
+          status: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          method?: string | null
+          reference?: string | null
+          status?: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          method?: string | null
+          reference?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
