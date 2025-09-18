@@ -31,13 +31,16 @@ interface User {
 export const AdminPanel = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [activeTab, setActiveTab] = useState<'transactions' | 'users' | 'results'>('transactions');
+  const [activeTab, setActiveTab] = useState<'transactions' | 'users' | 'results' | 'bets'>('transactions');
   const [newResult, setNewResult] = useState({ draw_time: '', result_number: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const [bets, setBets] = useState<any[]>([]);
+  const [editingBalance, setEditingBalance] = useState<{userId: string, newBalance: number} | null>(null);
 
   useEffect(() => {
     fetchTransactions();
     fetchUsers();
+    fetchBets();
   }, []);
 
   const fetchTransactions = async () => {
@@ -51,6 +54,23 @@ export const AdminPanel = () => {
       setTransactions(data || []);
     } catch (error) {
       console.error('Error fetching transactions:', error);
+    }
+  };
+
+  const fetchBets = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('bets')
+        .select(`
+          *,
+          profiles!inner(name, phone)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setBets(data || []);
+    } catch (error) {
+      console.error('Error fetching bets:', error);
     }
   };
 
@@ -121,6 +141,89 @@ export const AdminPanel = () => {
     }
   };
 
+  const updateUserBalance = async (userId: string, newBalance: number) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ balance: newBalance })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "အောင်မြင်ပါသည်",
+        description: "User balance updated successfully"
+      });
+
+      fetchUsers();
+      setEditingBalance(null);
+    } catch (error) {
+      toast({
+        title: "Error", 
+        description: "Failed to update user balance",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const processBetWinning = async (betId: string, isWinner: boolean) => {
+    setIsLoading(true);
+    try {
+      const bet = bets.find(b => b.id === betId);
+      if (!bet) return;
+
+      const winningAmount = isWinner ? bet.amount * 80 : 0; // 80x payout
+      
+      // Update bet status and winning amount
+      const { error: betError } = await supabase
+        .from('bets')
+        .update({ 
+          status: isWinner ? 'won' : 'lost',
+          winning_amount: winningAmount
+        })
+        .eq('id', betId);
+
+      if (betError) throw betError;
+
+      // If winner, update user balance
+      if (isWinner) {
+        const { data: currentProfile } = await supabase
+          .from('profiles')
+          .select('balance')
+          .eq('user_id', bet.user_id)
+          .single();
+
+        if (currentProfile) {
+          await supabase
+            .from('profiles')
+            .update({ 
+              balance: currentProfile.balance + winningAmount
+            })
+            .eq('user_id', bet.user_id);
+        }
+      }
+
+      toast({
+        title: "အောင်မြင်ပါသည်",
+        description: `Bet marked as ${isWinner ? 'winner' : 'loser'} successfully`
+      });
+
+      fetchBets();
+      fetchUsers();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to process bet result",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const addLotteryResult = async () => {
     if (!newResult.draw_time || !newResult.result_number) {
       toast({
@@ -178,6 +281,12 @@ export const AdminPanel = () => {
               onClick={() => setActiveTab('users')}
             >
               Users
+            </Button>
+            <Button
+              variant={activeTab === 'bets' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('bets')}
+            >
+              Bets Management
             </Button>
             <Button
               variant={activeTab === 'results' ? 'default' : 'outline'}
@@ -257,7 +366,7 @@ export const AdminPanel = () => {
 
           {activeTab === 'users' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Users</h3>
+              <h3 className="text-lg font-semibold">Users Management</h3>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -265,6 +374,7 @@ export const AdminPanel = () => {
                     <TableHead>Phone</TableHead>
                     <TableHead>Balance</TableHead>
                     <TableHead>Type</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -272,11 +382,129 @@ export const AdminPanel = () => {
                     <TableRow key={user.id}>
                       <TableCell>{user.name}</TableCell>
                       <TableCell>{user.phone}</TableCell>
-                      <TableCell>{user.balance.toLocaleString()} ကျပ်</TableCell>
+                      <TableCell>
+                        {editingBalance?.userId === user.id ? (
+                          <div className="flex gap-2 items-center">
+                            <Input
+                              type="number"
+                              value={editingBalance.newBalance}
+                              onChange={(e) => setEditingBalance({
+                                userId: user.id,
+                                newBalance: parseFloat(e.target.value) || 0
+                              })}
+                              className="w-24"
+                            />
+                            <Button 
+                              size="sm" 
+                              onClick={() => updateUserBalance(user.id, editingBalance.newBalance)}
+                              disabled={isLoading}
+                            >
+                              Save
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => setEditingBalance(null)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span>{user.balance.toLocaleString()} ကျပ်</span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setEditingBalance({userId: user.id, newBalance: user.balance})}
+                            >
+                              Edit
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge variant={user.user_type === 'admin' ? 'destructive' : user.user_type === 'vip' ? 'default' : 'secondary'}>
                           {user.user_type}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingBalance({userId: user.id, newBalance: user.balance})}
+                        >
+                          Edit Balance
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
+          {activeTab === 'bets' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Bets Management</h3>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>User</TableHead>
+                    <TableHead>Number</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Draw Time</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Winning Amount</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {bets.map((bet) => (
+                    <TableRow key={bet.id}>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{bet.profiles?.name}</p>
+                          <p className="text-sm text-muted-foreground">{bet.profiles?.phone}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{bet.number}</Badge>
+                      </TableCell>
+                      <TableCell>{bet.amount.toLocaleString()} ကျပ်</TableCell>
+                      <TableCell>{bet.draw_time}</TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant={
+                            bet.status === 'won' ? 'default' : 
+                            bet.status === 'lost' ? 'destructive' : 'secondary'
+                          }
+                        >
+                          {bet.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {bet.winning_amount ? `${bet.winning_amount.toLocaleString()} ကျပ်` : '-'}
+                      </TableCell>
+                      <TableCell>
+                        {bet.status === 'pending' && (
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => processBetWinning(bet.id, true)}
+                              disabled={isLoading}
+                            >
+                              Winner
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => processBetWinning(bet.id, false)}
+                              disabled={isLoading}
+                            >
+                              Loser
+                            </Button>
+                          </div>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
