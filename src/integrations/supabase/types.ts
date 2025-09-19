@@ -170,6 +170,7 @@ export type Database = {
           created_at: string
           id: string
           method: string | null
+          receipt_url: string | null
           reference: string | null
           status: string
           type: string
@@ -181,6 +182,7 @@ export type Database = {
           created_at?: string
           id?: string
           method?: string | null
+          receipt_url?: string | null
           reference?: string | null
           status?: string
           type: string
@@ -192,6 +194,7 @@ export type Database = {
           created_at?: string
           id?: string
           method?: string | null
+          receipt_url?: string | null
           reference?: string | null
           status?: string
           type?: string
