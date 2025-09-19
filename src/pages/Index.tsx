@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
+import { User } from "@supabase/supabase-js";
 import { LotteryHeader } from "../components/LotteryHeader";
 import { LotteryResults } from "../components/LotteryResults";
 import { BettingInterface } from "../components/BettingInterface";
 import { LoginForm } from "../components/LoginForm";
+import { UserRegistrationForm } from "../components/UserRegistrationForm";
 import { AdminPanel } from "../components/AdminPanel";
 import { TransactionHistory } from "../components/TransactionHistory";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-interface User {
+interface UserProfile {
   id: string;
   user_id: string;
   name: string;
@@ -24,151 +27,148 @@ interface Bet {
 }
 
 const Index = () => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [showLogin, setShowLogin] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [showRegister, setShowRegister] = useState(false);
   const [currentView, setCurrentView] = useState<'lottery' | 'history' | 'admin'>('lottery');
-  const [lotteryResults, setLotteryResults] = useState({
-    morning: "45",
-    afternoon: "23", 
-    evening: "67",
-  });
   const [nextDrawTime, setNextDrawTime] = useState("မနက် 9:30");
+  const { toast } = useToast();
 
-  // Demo user data - will be replaced by database data
-  const demoUsers = [
-    { id: '1', user_id: '11111111-1111-1111-1111-111111111111', name: "မြန်မာလူ", phone: "09123456789", balance: 50000, user_type: "user" as const },
-    { id: '2', user_id: '22222222-2222-2222-2222-222222222222', name: "VIP ဖောက်သည်", phone: "09987654321", balance: 100000, user_type: "vip" as const },
-    { id: '3', user_id: '33333333-3333-3333-3333-333333333333', name: "Admin", phone: "09750397287", balance: 500000, user_type: "admin" as const }
-  ];
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchUserProfile(session.user.id);
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          fetchUserProfile(session.user.id);
+        } else {
+          setUserProfile(null);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) throw error;
+      setUserProfile(data as UserProfile);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
 
   const handleLogin = async (phone: string, password: string) => {
-    // For demo purposes, we'll use the demo users
-    // In production, this would authenticate with Supabase
-    const user = demoUsers.find(u => u.phone === phone);
-    if (user) {
-      // Fetch real user data from database
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('phone', phone)
-          .single();
-        
-        if (data && !error) {
-          setCurrentUser({
-            ...data,
-            user_type: data.user_type as 'user' | 'vip' | 'admin'
-          });
-        } else {
-          setCurrentUser(user); // Fallback to demo data
-        }
-        setShowLogin(false);
-        setCurrentView('lottery');
-      } catch (error) {
-        setCurrentUser(user); // Fallback to demo data
-        setShowLogin(false);
-        setCurrentView('lottery');
-      }
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: `${phone}@lottery.mm`,
+        password: password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "ဝင်ရောက်မှု အောင်မြင်ပါသည်",
+        description: `ကြိုဆိုပါသည် ${userProfile?.name || 'User'}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "အကောင့်ဝင်ရောက်ရန် မအောင်မြင်ပါ",
+        description: "ဖုန်းနံပါတ် သို့မဟုတ် လျှို့ဝှက်နံပါတ် မှားနေပါသည်",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleDeposit = async () => {
-    // Refresh user balance after transaction
-    if (currentUser) {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', currentUser.user_id)
-          .single();
-        
-        if (data && !error) {
-          setCurrentUser({
-            ...data,
-            user_type: data.user_type as 'user' | 'vip' | 'admin'
-          });
-        }
-      } catch (error) {
-        console.error('Error refreshing balance:', error);
-      }
-    }
-  };
-
-  const handleWithdraw = async () => {
-    // Refresh user balance after transaction
-    if (currentUser) {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', currentUser.user_id)
-          .single();
-        
-        if (data && !error) {
-          setCurrentUser({
-            ...data,
-            user_type: data.user_type as 'user' | 'vip' | 'admin'
-          });
-        }
-      } catch (error) {
-        console.error('Error refreshing balance:', error);
-      }
-    }
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setShowLogin(true);
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setCurrentView('lottery');
+    toast({
+      title: "အကောင့်မှ ထွက်ပြီးပါပြီ",
+      description: "ကျေးဇူးတင်ပါသည်",
+    });
   };
 
   const handlePlaceBets = async (bets: Bet[]) => {
-    if (!currentUser) return;
+    if (!user || !userProfile) return;
     
-    const totalAmount = getTotalBetAmount(bets);
-    if (currentUser.balance >= totalAmount) {
-      try {
-        // Insert bets into database
-        const betInserts = bets.map(bet => ({
-          user_id: currentUser.user_id,
-          number: bet.number,
-          amount: bet.amount,
-          draw_time: "Next Draw", // This could be dynamic based on next draw time
-          status: 'pending'
-        }));
+    const totalAmount = bets.reduce((sum, bet) => sum + bet.amount, 0);
+    
+    if (userProfile.balance < totalAmount) {
+      toast({
+        title: "လက်ကျန်ငွေ မလုံလောက်ပါ",
+        description: "ငွေသွင်းပြီး ထီထိုးပါ",
+        variant: "destructive",
+      });
+      return;
+    }
 
-        const { error } = await supabase
-          .from('bets')
-          .insert(betInserts);
+    try {
+      // Insert bets into database
+      const betInserts = bets.map(bet => ({
+        user_id: user.id,
+        number: bet.number,
+        amount: bet.amount,
+        draw_time: nextDrawTime,
+        status: 'pending'
+      }));
 
-        if (error) throw error;
+      const { error } = await supabase
+        .from('bets')
+        .insert(betInserts);
 
-        // Update user balance
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ balance: currentUser.balance - totalAmount })
-          .eq('user_id', currentUser.user_id);
+      if (error) throw error;
 
-        if (updateError) throw updateError;
+      // Update user balance
+      const newBalance = userProfile.balance - totalAmount;
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ balance: newBalance })
+        .eq('user_id', user.id);
 
-        // Update local state
-        setCurrentUser({
-          ...currentUser,
-          balance: currentUser.balance - totalAmount
-        });
+      if (updateError) throw updateError;
 
-        console.log("Bets placed:", bets);
-      } catch (error) {
-        console.error('Error placing bets:', error);
-      }
+      // Update local state
+      setUserProfile({
+        ...userProfile,
+        balance: newBalance
+      });
+
+      toast({
+        title: "ထီထိုးပြီးပါပြီ",
+        description: `${bets.length} နံပါတ် - ${totalAmount.toLocaleString()} ကျပ်`,
+      });
+    } catch (error) {
+      toast({
+        title: "ထီထိုးရန် မအောင်မြင်ပါ",
+        description: "ပြန်လည်ကြိုးစားပါ",
+        variant: "destructive",
+      });
     }
   };
 
-  const getTotalBetAmount = (bets: Bet[]) => {
-    return bets.reduce((sum, bet) => sum + bet.amount, 0);
+  const refreshUserProfile = () => {
+    if (user) {
+      fetchUserProfile(user.id);
+    }
   };
 
-  // Update next draw time (simplified)
+  // Update next draw time
   useEffect(() => {
     const updateNextDraw = () => {
       const now = new Date();
@@ -191,69 +191,86 @@ const Index = () => {
     return () => clearInterval(interval);
   }, []);
 
+  if (showRegister) {
+    return (
+      <UserRegistrationForm 
+        onBack={() => setShowRegister(false)}
+        onSuccess={() => {
+          setShowRegister(false);
+          toast({
+            title: "🎉 ကြိုဆိုပါသည်",
+            description: "အကောင့်ဖွင့်ပြီး ဝင်ရောက်နိုင်ပါပြီ",
+          });
+        }}
+      />
+    );
+  }
+
+  if (!user) {
+    return (
+      <LoginForm 
+        onLogin={handleLogin}
+        onShowRegister={() => setShowRegister(true)}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/10 to-accent/20">
-      {showLogin ? (
-        <LoginForm onLogin={handleLogin} onShowRegister={() => {}} />
-      ) : (
-        <div className="space-y-6 p-4">
-          <LotteryHeader
-            userName={currentUser?.name}
-            userPhone={currentUser?.phone}
-            balance={currentUser?.balance || 0}
-            onDeposit={handleDeposit}
-            onWithdraw={handleWithdraw}
-            onLogout={handleLogout}
-            userId={currentUser?.user_id}
-          />
-          
-          {/* Navigation */}
-          <div className="flex gap-2 justify-center">
+      <div className="space-y-6 p-4">
+        <LotteryHeader
+          userName={userProfile?.name}
+          userPhone={userProfile?.phone}
+          balance={userProfile?.balance || 0}
+          onDeposit={refreshUserProfile}
+          onWithdraw={refreshUserProfile}
+          onLogout={handleLogout}
+          userId={user?.id || ""}
+        />
+        
+        {/* Navigation */}
+        <div className="flex gap-2 justify-center flex-wrap">
+          <Button
+            variant={currentView === 'lottery' ? 'default' : 'outline'}
+            onClick={() => setCurrentView('lottery')}
+          >
+            🎯 လောင်းကစား
+          </Button>
+          <Button
+            variant={currentView === 'history' ? 'default' : 'outline'}
+            onClick={() => setCurrentView('history')}
+          >
+            📊 မှတ်တမ်း
+          </Button>
+          {userProfile?.user_type === 'admin' && (
             <Button
-              variant={currentView === 'lottery' ? 'default' : 'outline'}
-              onClick={() => setCurrentView('lottery')}
+              variant={currentView === 'admin' ? 'default' : 'outline'}
+              onClick={() => setCurrentView('admin')}
             >
-              လောင်းကစား
+              🔧 Admin Panel
             </Button>
-            <Button
-              variant={currentView === 'history' ? 'default' : 'outline'}
-              onClick={() => setCurrentView('history')}
-            >
-              မှတ်တမ်း
-            </Button>
-            {currentUser?.user_type === 'admin' && (
-              <Button
-                variant={currentView === 'admin' ? 'default' : 'outline'}
-                onClick={() => setCurrentView('admin')}
-              >
-                Admin Panel
-              </Button>
-            )}
-          </div>
-          
-          {currentView === 'lottery' && (
-            <>
-              <LotteryResults
-                results={lotteryResults}
-                nextDrawTime={nextDrawTime}
-              />
-              
-              <BettingInterface
-                onPlaceBets={handlePlaceBets}
-                userBalance={currentUser?.balance || 0}
-              />
-            </>
-          )}
-          
-          {currentView === 'history' && currentUser && (
-            <TransactionHistory userId={currentUser.user_id} />
-          )}
-          
-          {currentView === 'admin' && currentUser?.user_type === 'admin' && (
-            <AdminPanel />
           )}
         </div>
-      )}
+        
+        {currentView === 'lottery' && (
+          <>
+            <LotteryResults nextDrawTime={nextDrawTime} />
+            
+            <BettingInterface
+              onPlaceBets={handlePlaceBets}
+              userBalance={userProfile?.balance || 0}
+            />
+          </>
+        )}
+        
+        {currentView === 'history' && user && (
+          <TransactionHistory userId={user.id} />
+        )}
+        
+        {currentView === 'admin' && userProfile?.user_type === 'admin' && (
+          <AdminPanel />
+        )}
+      </div>
     </div>
   );
 };
