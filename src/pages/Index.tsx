@@ -35,58 +35,95 @@ const Index = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserProfile(session.user.id);
-      }
-    });
-
-    // Listen for auth changes
+    // Listen for auth changes first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id);
         setUser(session?.user ?? null);
         if (session?.user) {
-          fetchUserProfile(session.user.id);
+          // Use setTimeout to avoid potential deadlock
+          setTimeout(() => {
+            fetchUserProfile(session.user.id);
+          }, 0);
         } else {
           setUserProfile(null);
         }
       }
     );
 
+    // Then get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session?.user?.id);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchUserProfile(session.user.id);
+      }
+    });
+
     return () => subscription.unsubscribe();
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
-      setUserProfile(data as UserProfile);
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return;
+      }
+
+      if (data) {
+        console.log('Profile found:', data);
+        setUserProfile(data as UserProfile);
+      } else {
+        console.log('No profile found for user:', userId);
+        // Create a basic profile if none exists
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: userId,
+            name: 'User',
+            phone: '',
+            balance: 0,
+            user_type: 'user'
+          })
+          .select()
+          .single();
+
+        if (!createError && newProfile) {
+          setUserProfile(newProfile as UserProfile);
+        }
+      }
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error('Error in fetchUserProfile:', error);
     }
   };
 
   const handleLogin = async (phone: string, password: string) => {
     try {
+      console.log('Attempting login for phone:', phone);
       const { data, error } = await supabase.auth.signInWithPassword({
         email: `${phone}@lottery.mm`,
         password: password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Login error:', error);
+        throw error;
+      }
 
+      console.log('Login successful:', data.user?.id);
       toast({
         title: "ဝင်ရောက်မှု အောင်မြင်ပါသည်",
-        description: `ကြိုဆိုပါသည် ${userProfile?.name || 'User'}`,
+        description: `ကြိုဆိုပါသည်`,
       });
     } catch (error: any) {
+      console.error('Login failed:', error.message);
       toast({
         title: "အကောင့်ဝင်ရောက်ရန် မအောင်မြင်ပါ",
         description: "ဖုန်းနံပါတ် သို့မဟုတ် လျှို့ဝှက်နံပါတ် မှားနေပါသည်",
