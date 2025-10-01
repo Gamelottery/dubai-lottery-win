@@ -111,26 +111,27 @@ export const LotteryResults = ({ nextDrawTime }: LotteryResultsProps) => {
           </p>
         </div>
         
-        <div className="p-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="p-4 md:p-8">
+          {/* Horizontal scrolling layout for mobile */}
+          <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
             {draws.map((draw, index) => (
-              <div key={index} className="text-center">
-                <div className={`${draw.bgColor} rounded-2xl p-6 lottery-hover`}>
-                  <div className={`text-xl font-bold ${draw.textColor} mb-4`}>
+              <div key={index} className="flex-shrink-0 w-[280px] sm:w-[320px] snap-center">
+                <div className={`${draw.bgColor} rounded-2xl p-4 sm:p-6 lottery-hover h-full`}>
+                  <div className={`text-lg sm:text-xl font-bold ${draw.textColor} mb-3 sm:mb-4 text-center`}>
                     {draw.time}
                   </div>
-                  <div className="bg-card-light rounded-xl p-6 shadow-inner">
+                  <div className="bg-card-light rounded-xl p-4 sm:p-6 shadow-inner">
                     {draw.result ? (
-                      <div className="lottery-number text-4xl font-black animate-lottery-glow">
+                      <div className="lottery-number text-3xl sm:text-4xl font-black animate-lottery-glow text-center">
                         {draw.result}
                       </div>
                     ) : (
-                      <div className="text-2xl font-bold text-muted-foreground animate-lottery-pulse">
+                      <div className="text-xl sm:text-2xl font-bold text-muted-foreground animate-lottery-pulse text-center">
                         မထွက်သေး
                       </div>
                     )}
                   </div>
-                  <div className="text-sm text-muted-foreground mt-3">
+                  <div className="text-xs sm:text-sm text-muted-foreground mt-2 sm:mt-3 text-center">
                     {draw.timeEn}
                   </div>
                 </div>
@@ -152,17 +153,17 @@ export const LotteryResults = ({ nextDrawTime }: LotteryResultsProps) => {
 
           {/* Recent Results History */}
           {lotteryResults.length > 0 && (
-            <div className="mt-8">
-              <h3 className="text-xl font-bold text-center mb-6 text-primary">
+            <div className="mt-6 sm:mt-8">
+              <h3 className="text-lg sm:text-xl font-bold text-center mb-4 sm:mb-6 text-primary">
                 📊 လတ်တလော ရလဒ်များ
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
                 {lotteryResults.slice(0, 6).map((result) => (
-                  <Card key={result.id} className="p-4 text-center">
-                    <div className="text-sm text-muted-foreground mb-2">
+                  <Card key={result.id} className="flex-shrink-0 w-[140px] sm:w-[160px] p-3 sm:p-4 text-center snap-center">
+                    <div className="text-xs sm:text-sm text-muted-foreground mb-2 truncate">
                       {result.draw_time}
                     </div>
-                    <div className="text-2xl font-bold text-primary animate-lottery-glow">
+                    <div className="text-xl sm:text-2xl font-bold text-primary animate-lottery-glow">
                       {result.result_number}
                     </div>
                     <div className="text-xs text-muted-foreground mt-2">
