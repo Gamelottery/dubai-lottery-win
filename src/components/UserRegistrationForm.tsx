@@ -75,8 +75,10 @@ export const UserRegistrationForm = ({ onBack, onSuccess }: UserRegistrationForm
     setIsSubmitting(true);
 
     try {
+      // Convert phone to valid email format
+      const email = `phone_${formData.phone}@lottery.mm`;
       const { data, error } = await supabase.auth.signUp({
-        email: `${formData.phone}@lottery.mm`, // Create unique email from phone
+        email: email,
         password: formData.password,
         options: {
           data: {

@@ -107,8 +107,10 @@ const Index = () => {
   const handleLogin = async (phone: string, password: string) => {
     try {
       console.log('Attempting login for phone:', phone);
+      // Convert phone to valid email format
+      const email = `phone_${phone}@lottery.mm`;
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: `${phone}@lottery.mm`,
+        email: email,
         password: password,
       });
 
