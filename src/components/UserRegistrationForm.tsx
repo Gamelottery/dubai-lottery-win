@@ -75,51 +75,39 @@ export const UserRegistrationForm = ({ onBack, onSuccess }: UserRegistrationForm
     setIsSubmitting(true);
 
     try {
-      // Convert phone to valid email format with .com domain
-      const email = `${formData.phone}@lottery.com`;
-      const { data, error } = await supabase.auth.signUp({
-        email: email,
-        password: formData.password,
-        options: {
-          data: {
-            name: formData.name,
-            phone: formData.phone,
-          },
-          emailRedirectTo: `${window.location.origin}/`
+      // Call edge function to register user with auto-confirmation
+      const { data, error } = await supabase.functions.invoke('register-user', {
+        body: {
+          name: formData.name,
+          phone: formData.phone,
+          password: formData.password,
         }
       });
 
-      if (error) {
-        console.error('Signup error:', error);
-        if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+      if (error) throw error;
+
+      if (data?.success) {
+        toast({
+          title: "🎉 အကောင့်ဖွင့်ခြင်း အောင်မြင်ပါသည်",
+          description: "အကောင့်ဝင်ရောက်နိုင်ပါပြီ",
+        });
+        onSuccess();
+      } else if (data?.error) {
+        if (data.error.includes('already') || data.error.includes('duplicate')) {
           toast({
             title: "အကောင့် ရှိနေပါပြီး",
             description: "ဤဖုန်းနံပါတ် ဖြင့် အကောင့်ဖွင့်ပြီးပါပြီး",
             variant: "destructive",
           });
         } else {
-          toast({
-            title: "အကောင့်ဖွင့်ရန် မအောင်မြင်ပါ",
-            description: error.message,
-            variant: "destructive",
-          });
+          throw new Error(data.error);
         }
-        return;
-      }
-
-      if (data.user) {
-        toast({
-          title: "🎉 အကောင့်ဖွင့်ခြင်း အောင်မြင်ပါသည်",
-          description: "အကောင့်ဝင်ရောက်နိုင်ပါပြီ",
-        });
-        
-        onSuccess();
       }
     } catch (error: any) {
       console.error('Registration error:', error);
       toast({
         title: "အကောင့်ဖွင့်ရန် မအောင်မြင်ပါ",
-        description: "ပြန်လည်ကြိုးစားပါ သို့မဟုတ် Admin နှင့်ဆက်သွယ်ပါ",
+        description: error.message || "ပြန်လည်ကြိုးစားပါ",
         variant: "destructive",
       });
     } finally {
