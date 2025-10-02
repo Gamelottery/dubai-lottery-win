@@ -75,8 +75,8 @@ export const UserRegistrationForm = ({ onBack, onSuccess }: UserRegistrationForm
     setIsSubmitting(true);
 
     try {
-      // Convert phone to valid email format
-      const email = `phone_${formData.phone}@lottery.mm`;
+      // Convert phone to valid email format with .com domain
+      const email = `${formData.phone}@lottery.com`;
       const { data, error } = await supabase.auth.signUp({
         email: email,
         password: formData.password,
