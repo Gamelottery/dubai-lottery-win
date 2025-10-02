@@ -90,14 +90,19 @@ export const UserRegistrationForm = ({ onBack, onSuccess }: UserRegistrationForm
       });
 
       if (error) {
-        if (error.message.includes('already registered')) {
+        console.error('Signup error:', error);
+        if (error.message.includes('already registered') || error.message.includes('User already registered')) {
           toast({
             title: "အကောင့် ရှိနေပါပြီး",
             description: "ဤဖုန်းနံပါတ် ဖြင့် အကောင့်ဖွင့်ပြီးပါပြီး",
             variant: "destructive",
           });
         } else {
-          throw error;
+          toast({
+            title: "အကောင့်ဖွင့်ရန် မအောင်မြင်ပါ",
+            description: error.message,
+            variant: "destructive",
+          });
         }
         return;
       }
