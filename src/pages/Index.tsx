@@ -107,12 +107,25 @@ const Index = () => {
   const handleLogin = async (phone: string, password: string) => {
     try {
       console.log('Attempting login for phone:', phone);
-      // Convert phone to valid email format with .com domain
-      const email = `${phone}@lottery.com`;
-      const { data, error } = await supabase.auth.signInWithPassword({
+      
+      // Try with .com domain first (new format)
+      let email = `${phone}@lottery.com`;
+      let { data, error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
       });
+
+      // If failed, try with .mm domain (old format for existing accounts)
+      if (error) {
+        console.log('Trying with .mm domain...');
+        email = `phone_${phone}@lottery.mm`;
+        const result = await supabase.auth.signInWithPassword({
+          email: email,
+          password: password,
+        });
+        data = result.data;
+        error = result.error;
+      }
 
       if (error) {
         console.error('Login error:', error);
