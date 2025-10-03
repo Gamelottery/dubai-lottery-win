@@ -13,9 +13,10 @@ interface DepositWithdrawDialogProps {
   userBalance: number;
   onSuccess: () => void;
   userId: string;
+  children?: React.ReactNode;
 }
 
-export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId }: DepositWithdrawDialogProps) => {
+export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, children }: DepositWithdrawDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("");
@@ -168,12 +169,14 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId }: 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button 
-          variant={type === 'deposit' ? 'default' : 'outline'}
-          className="flex-1"
-        >
-          {type === 'deposit' ? '💰 ငွေသွင်း' : '💸 ငွေထုတ်'}
-        </Button>
+        {children || (
+          <Button 
+            variant={type === 'deposit' ? 'default' : 'outline'}
+            className="flex-1"
+          >
+            {type === 'deposit' ? '💰 ငွေသွင်း' : '💸 ငွေထုတ်'}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
