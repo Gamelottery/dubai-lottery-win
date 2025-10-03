@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Eye } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -17,7 +19,12 @@ interface Transaction {
   status: string;
   method: string;
   reference: string;
+  receipt_url: string | null;
   created_at: string;
+  profiles?: {
+    name: string;
+    phone: string;
+  };
 }
 
 interface User {
@@ -47,7 +54,10 @@ export const AdminPanel = () => {
     try {
         const { data, error } = await supabase
           .from('transactions')
-          .select('*')
+          .select(`
+            *,
+            profiles!inner(name, phone)
+          `)
           .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -306,6 +316,7 @@ export const AdminPanel = () => {
                     <TableHead>Type</TableHead>
                     <TableHead>Amount</TableHead>
                     <TableHead>Method</TableHead>
+                    <TableHead>ပြေစာ</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -315,17 +326,57 @@ export const AdminPanel = () => {
                     <TableRow key={transaction.id}>
                       <TableCell>
                         <div>
-                          <p className="font-medium">{transaction.user_id}</p>
-                          <p className="text-sm text-muted-foreground">User ID</p>
+                          <p className="font-medium">{transaction.profiles?.name || 'Unknown'}</p>
+                          <p className="text-sm text-muted-foreground">{transaction.profiles?.phone || 'No phone'}</p>
                         </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant={transaction.type === 'deposit' ? 'default' : 'secondary'}>
-                          {transaction.type}
+                          {transaction.type === 'deposit' ? '💰 ငွေသွင်း' : '💸 ငွေထုတ်'}
                         </Badge>
                       </TableCell>
-                      <TableCell>{transaction.amount.toLocaleString()} ကျပ်</TableCell>
-                      <TableCell>{transaction.method}</TableCell>
+                      <TableCell className="font-semibold">{transaction.amount.toLocaleString()} ကျပ်</TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <p className="font-medium">{transaction.method}</p>
+                          {transaction.reference && (
+                            <p className="text-muted-foreground text-xs">Ref: {transaction.reference}</p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {transaction.receipt_url ? (
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button size="sm" variant="outline" className="gap-1">
+                                <Eye className="h-4 w-4" />
+                                ကြည့်မယ်
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-3xl">
+                              <DialogHeader>
+                                <DialogTitle>ငွေပေးချေမှု ပြေစာ</DialogTitle>
+                              </DialogHeader>
+                              <div className="mt-4">
+                                <img 
+                                  src={`${supabase.storage.from('receipts').getPublicUrl(transaction.receipt_url).data.publicUrl}`}
+                                  alt="Payment Receipt"
+                                  className="w-full h-auto rounded-lg border"
+                                />
+                                <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
+                                  <p><strong>အမည်:</strong> {transaction.profiles?.name}</p>
+                                  <p><strong>ဖုန်း:</strong> {transaction.profiles?.phone}</p>
+                                  <p><strong>ပမာဏ:</strong> {transaction.amount.toLocaleString()} ကျပ်</p>
+                                  <p><strong>နည်းလမ်း:</strong> {transaction.method}</p>
+                                  {transaction.reference && <p><strong>ရည်ညွှန်း:</strong> {transaction.reference}</p>}
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">-</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge 
                           variant={
@@ -333,7 +384,8 @@ export const AdminPanel = () => {
                             transaction.status === 'failed' ? 'destructive' : 'secondary'
                           }
                         >
-                          {transaction.status}
+                          {transaction.status === 'completed' ? '✅ အတည်ပြု' : 
+                           transaction.status === 'failed' ? '❌ ပယ်ချ' : '⏳ စောင့်ဆိုင်း'}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -341,10 +393,11 @@ export const AdminPanel = () => {
                           <div className="flex gap-2">
                             <Button
                               size="sm"
+                              className="bg-green-600 hover:bg-green-700"
                               onClick={() => updateTransactionStatus(transaction.id, 'completed')}
                               disabled={isLoading}
                             >
-                              Approve
+                              ✅ အတည်ပြု
                             </Button>
                             <Button
                               size="sm"
@@ -352,7 +405,7 @@ export const AdminPanel = () => {
                               onClick={() => updateTransactionStatus(transaction.id, 'failed')}
                               disabled={isLoading}
                             >
-                              Reject
+                              ❌ ပယ်ချ
                             </Button>
                           </div>
                         )}
