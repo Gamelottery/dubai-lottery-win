@@ -56,7 +56,7 @@ export const AdminPanel = () => {
           .from('transactions')
           .select(`
             *,
-            profiles!inner(name, phone)
+            profiles!transactions_user_id_fkey(name, phone)
           `)
           .order('created_at', { ascending: false });
 
