@@ -55,7 +55,7 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
   const uploadReceiptImage = async (file: File): Promise<string | null> => {
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `receipts/${userId}/${Date.now()}.${fileExt}`;
+      const fileName = `${userId}/${Date.now()}.${fileExt}`;
       
       const { data, error } = await supabase.storage
         .from('receipts')
@@ -63,6 +63,11 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
 
       if (error) {
         console.error('Error uploading file:', error);
+        toast({
+          title: "Upload Error",
+          description: error.message,
+          variant: "destructive",
+        });
         return null;
       }
 
