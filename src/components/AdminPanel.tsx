@@ -568,29 +568,41 @@ export const AdminPanel = () => {
 
           {activeTab === 'results' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Add Lottery Result</h3>
+              <h3 className="text-lg font-semibold">ထီရလဒ် ထည့်ရန်</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="draw_time">Draw Time</Label>
-                  <Input
-                    id="draw_time"
+                  <Label htmlFor="draw_time">ထွက်ချိန်</Label>
+                  <Select
                     value={newResult.draw_time}
-                    onChange={(e) => setNewResult({...newResult, draw_time: e.target.value})}
-                    placeholder="e.g., 12:01 PM"
-                  />
+                    onValueChange={(value) => setNewResult({...newResult, draw_time: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="ထွက်ချိန်ရွေးပါ" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="11:00 AM">11:00 AM</SelectItem>
+                      <SelectItem value="1:00 PM">1:00 PM</SelectItem>
+                      <SelectItem value="3:00 PM">3:00 PM</SelectItem>
+                      <SelectItem value="5:00 PM">5:00 PM</SelectItem>
+                      <SelectItem value="7:00 PM">7:00 PM</SelectItem>
+                      <SelectItem value="9:00 PM">9:00 PM</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
-                  <Label htmlFor="result_number">Result Number</Label>
+                  <Label htmlFor="result_number">ထီရလဒ်</Label>
                   <Input
                     id="result_number"
+                    type="text"
                     value={newResult.result_number}
                     onChange={(e) => setNewResult({...newResult, result_number: e.target.value})}
-                    placeholder="e.g., 45"
+                    placeholder="ဥပမာ: 45"
+                    maxLength={2}
                   />
                 </div>
               </div>
-              <Button onClick={addLotteryResult} disabled={isLoading}>
-                {isLoading ? 'Adding...' : 'Add Result'}
+              <Button onClick={addLotteryResult} disabled={isLoading} className="w-full">
+                {isLoading ? 'ထည့်နေသည်...' : '✅ ထီရလဒ် ထည့်မယ်'}
               </Button>
             </div>
           )}
