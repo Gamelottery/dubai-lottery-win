@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 
 interface LotteryResult {
@@ -20,6 +19,7 @@ interface LotteryResultsProps {
 
 export const LotteryResults = ({ nextDrawTime }: LotteryResultsProps) => {
   const [lotteryResults, setLotteryResults] = useState<LotteryResult[]>([]);
+  
   useEffect(() => {
     fetchLotteryResults();
     
@@ -82,127 +82,56 @@ export const LotteryResults = ({ nextDrawTime }: LotteryResultsProps) => {
   const draws = [
     {
       time: "11:00 AM",
-      timeEn: "11:00 AM Draw",
       result: todayResults.draw11am,
-      bgColor: "bg-secondary/20",
-      textColor: "text-secondary",
     },
     {
       time: "1:00 PM", 
-      timeEn: "1:00 PM Draw",
       result: todayResults.draw1pm,
-      bgColor: "bg-accent/20",
-      textColor: "text-accent",
     },
     {
       time: "3:00 PM",
-      timeEn: "3:00 PM Draw", 
       result: todayResults.draw3pm,
-      bgColor: "bg-primary/20",
-      textColor: "text-primary",
     },
     {
       time: "5:00 PM",
-      timeEn: "5:00 PM Draw", 
       result: todayResults.draw5pm,
-      bgColor: "bg-secondary/20",
-      textColor: "text-secondary",
     },
     {
       time: "7:00 PM",
-      timeEn: "7:00 PM Draw", 
       result: todayResults.draw7pm,
-      bgColor: "bg-accent/20",
-      textColor: "text-accent",
     },
     {
       time: "9:00 PM",
-      timeEn: "9:00 PM Draw", 
       result: todayResults.draw9pm,
-      bgColor: "bg-primary/20",
-      textColor: "text-primary",
     },
   ];
 
   return (
-    <div className="max-w-4xl mx-auto mb-8">
-      <Card className="lottery-card rounded-2xl shadow-card overflow-hidden">
-        <div className="bg-gradient-secondary p-6 text-white text-center">
-          <h2 className="text-3xl font-bold mb-2">🏆 ယနေ့ ထီရလဒ်များ</h2>
-          <p className="opacity-90 text-lg">
-            {new Date().toLocaleDateString('my-MM', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </p>
-        </div>
-        
-        <div className="p-4 md:p-8">
-          {/* Horizontal scrolling layout for mobile */}
-          <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-            {draws.map((draw, index) => (
-              <div key={index} className="flex-shrink-0 w-[280px] sm:w-[320px] snap-center">
-                <div className={`${draw.bgColor} rounded-2xl p-4 sm:p-6 lottery-hover h-full`}>
-                  <div className={`text-lg sm:text-xl font-bold ${draw.textColor} mb-3 sm:mb-4 text-center`}>
-                    {draw.time}
-                  </div>
-                  <div className="bg-card-light rounded-xl p-4 sm:p-6 shadow-inner">
-                    {draw.result ? (
-                      <div className="lottery-number text-3xl sm:text-4xl font-black animate-lottery-glow text-center">
-                        {draw.result}
-                      </div>
-                    ) : (
-                      <div className="text-xl sm:text-2xl font-bold text-muted-foreground animate-lottery-pulse text-center">
-                        မထွက်သေး
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground mt-2 sm:mt-3 text-center">
-                    {draw.timeEn}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          {/* Next Draw Countdown */}
-          <div className="mt-8 text-center">
-            <Card className="bg-warning/10 border-warning/30 rounded-xl p-6">
-              <div className="text-sm text-muted-foreground mb-2">
-                နောက်ထီ ထွက်ချိন်
-              </div>
-              <div className="text-2xl font-bold text-warning animate-lottery-pulse">
-                {nextDrawTime}
-              </div>
-            </Card>
-          </div>
-
-          {/* Recent Results History */}
-          {lotteryResults.length > 0 && (
-            <div className="mt-6 sm:mt-8">
-              <h3 className="text-lg sm:text-xl font-bold text-center mb-4 sm:mb-6 text-primary">
-                📊 လတ်တလော ရလဒ်များ
-              </h3>
-              <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                {lotteryResults.slice(0, 6).map((result) => (
-                  <Card key={result.id} className="flex-shrink-0 w-[140px] sm:w-[160px] p-3 sm:p-4 text-center snap-center">
-                    <div className="text-xs sm:text-sm text-muted-foreground mb-2 truncate">
-                      {result.draw_time}
-                    </div>
-                    <div className="text-xl sm:text-2xl font-bold text-primary animate-lottery-glow">
-                      {result.result_number}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-2">
-                      {new Date(result.created_at).toLocaleDateString('my-MM')}
-                    </div>
-                  </Card>
-                ))}
+    <div className="max-w-6xl mx-auto mb-8 px-4">
+      {/* Grid layout matching reference image */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        {draws.map((draw, index) => (
+          <div key={index} className="rounded-2xl overflow-hidden shadow-lg">
+            {/* Time header - darker blue */}
+            <div className="bg-[hsl(204,42%,45%)] py-4 sm:py-6">
+              <div className="text-white text-2xl sm:text-3xl lg:text-4xl font-bold text-center">
+                {draw.time}
               </div>
             </div>
-          )}
-        </div>
-      </Card>
+            
+            {/* Result section - lighter blue */}
+            <div className="bg-[hsl(204,42%,55%)] py-8 sm:py-12 lg:py-16">
+              {draw.result ? (
+                <div className="text-[#FFD700] text-4xl sm:text-5xl lg:text-6xl font-black text-center">
+                  {draw.result}
+                </div>
+              ) : (
+                <div className="h-[48px] sm:h-[60px] lg:h-[72px]"></div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
