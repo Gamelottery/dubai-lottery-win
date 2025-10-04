@@ -60,14 +60,20 @@ export const LotteryResults = ({ nextDrawTime }: LotteryResultsProps) => {
       new Date(result.created_at).toDateString() === today
     );
 
-    const morning = todayResults.find(r => r.draw_time.includes('9:30') || r.draw_time.toLowerCase().includes('morning'));
-    const afternoon = todayResults.find(r => r.draw_time.includes('2:00') || r.draw_time.toLowerCase().includes('afternoon'));
-    const evening = todayResults.find(r => r.draw_time.includes('4:30') || r.draw_time.toLowerCase().includes('evening'));
+    const draw11am = todayResults.find(r => r.draw_time.includes('11:00') || r.draw_time.toLowerCase().includes('11:00 am'));
+    const draw1pm = todayResults.find(r => r.draw_time.includes('1:00') || r.draw_time.toLowerCase().includes('1:00 pm'));
+    const draw3pm = todayResults.find(r => r.draw_time.includes('3:00') || r.draw_time.toLowerCase().includes('3:00 pm'));
+    const draw5pm = todayResults.find(r => r.draw_time.includes('5:00') || r.draw_time.toLowerCase().includes('5:00 pm'));
+    const draw7pm = todayResults.find(r => r.draw_time.includes('7:00') || r.draw_time.toLowerCase().includes('7:00 pm'));
+    const draw9pm = todayResults.find(r => r.draw_time.includes('9:00') || r.draw_time.toLowerCase().includes('9:00 pm'));
 
     return {
-      morning: morning?.result_number || null,
-      afternoon: afternoon?.result_number || null,
-      evening: evening?.result_number || null,
+      draw11am: draw11am?.result_number || null,
+      draw1pm: draw1pm?.result_number || null,
+      draw3pm: draw3pm?.result_number || null,
+      draw5pm: draw5pm?.result_number || null,
+      draw7pm: draw7pm?.result_number || null,
+      draw9pm: draw9pm?.result_number || null,
     };
   };
 
@@ -75,23 +81,44 @@ export const LotteryResults = ({ nextDrawTime }: LotteryResultsProps) => {
 
   const draws = [
     {
-      time: "🌅 မနက် 9:30",
-      timeEn: "Morning Draw",
-      result: todayResults.morning,
+      time: "11:00 AM",
+      timeEn: "11:00 AM Draw",
+      result: todayResults.draw11am,
       bgColor: "bg-secondary/20",
       textColor: "text-secondary",
     },
     {
-      time: "☀️ နေ့လည် 2:00", 
-      timeEn: "Afternoon Draw",
-      result: todayResults.afternoon,
+      time: "1:00 PM", 
+      timeEn: "1:00 PM Draw",
+      result: todayResults.draw1pm,
       bgColor: "bg-accent/20",
       textColor: "text-accent",
     },
     {
-      time: "🌆 ညနေ 4:30",
-      timeEn: "Evening Draw", 
-      result: todayResults.evening,
+      time: "3:00 PM",
+      timeEn: "3:00 PM Draw", 
+      result: todayResults.draw3pm,
+      bgColor: "bg-primary/20",
+      textColor: "text-primary",
+    },
+    {
+      time: "5:00 PM",
+      timeEn: "5:00 PM Draw", 
+      result: todayResults.draw5pm,
+      bgColor: "bg-secondary/20",
+      textColor: "text-secondary",
+    },
+    {
+      time: "7:00 PM",
+      timeEn: "7:00 PM Draw", 
+      result: todayResults.draw7pm,
+      bgColor: "bg-accent/20",
+      textColor: "text-accent",
+    },
+    {
+      time: "9:00 PM",
+      timeEn: "9:00 PM Draw", 
+      result: todayResults.draw9pm,
       bgColor: "bg-primary/20",
       textColor: "text-primary",
     },
