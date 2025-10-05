@@ -21,6 +21,7 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("");
   const [reference, setReference] = useState("");
+  const [phone, setPhone] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -81,13 +82,25 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!amount || !method) {
-      toast({
-        title: "လိုအပ်သော အချက်အလက်များ မရှိပါ",
-        description: "ငွေပမာဏနှင့် နည်းလမ်း ရွေးချယ်ပါ",
-        variant: "destructive",
-      });
-      return;
+    // Validation based on type
+    if (type === 'withdrawal') {
+      if (!amount || !phone) {
+        toast({
+          title: "လိုအပ်သော အချက်အလက်များ မရှိပါ",
+          description: "ငွေပမာဏနှင့် ဖုန်းနံပါတ် ဖြည့်ပါ",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      if (!amount || !method) {
+        toast({
+          title: "လိုအပ်သော အချက်အလက်များ မရှိပါ",
+          description: "ငွေပမာဏနှင့် နည်းလမ်း ရွေးချယ်ပါ",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     const numAmount = parseFloat(amount);
@@ -141,8 +154,8 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
           user_id: userId,
           type,
           amount: numAmount,
-          method,
-          reference: reference || '',
+          method: type === 'withdrawal' ? null : method,
+          reference: type === 'withdrawal' ? phone : (reference || ''),
           receipt_url: receiptUrl,
           status: 'pending'
         });
@@ -158,6 +171,7 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
       setAmount("");
       setMethod("");
       setReference("");
+      setPhone("");
       setReceiptFile(null);
       onSuccess();
     } catch (error) {
@@ -204,32 +218,48 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="method" className="text-base font-medium">📱 ငွေပေးချေမုစနစ်</Label>
-            <Select value={method} onValueChange={setMethod}>
-              <SelectTrigger className="h-12">
-                <SelectValue placeholder="နည်းလမ်း ရွေးပါ" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="kpay">KPay - 09123456789</SelectItem>
-                <SelectItem value="wavepay">Wave Pay - 09987654321</SelectItem>
-                <SelectItem value="cbpay">CB Pay - 09456789123</SelectItem>
-                <SelectItem value="ayapay">AYA Pay - 09789123456</SelectItem>
-                <SelectItem value="bank">ဘဏ်လွဲ - CB Bank (၁၂၃၄၅)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {type === 'withdrawal' ? (
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-base font-medium">📱 ဖုန်းနံပါတ်</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="09xxxxxxxxx"
+                className="h-12 text-lg"
+              />
+            </div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="method" className="text-base font-medium">📱 ငွေပေးချေမုစနစ်</Label>
+                <Select value={method} onValueChange={setMethod}>
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="နည်းလမ်း ရွေးပါ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="kpay">KPay - 09123456789</SelectItem>
+                    <SelectItem value="wavepay">Wave Pay - 09987654321</SelectItem>
+                    <SelectItem value="cbpay">CB Pay - 09456789123</SelectItem>
+                    <SelectItem value="ayapay">AYA Pay - 09789123456</SelectItem>
+                    <SelectItem value="bank">ဘဏ်လွဲ - CB Bank (၁၂၃၄၅)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="reference" className="text-base font-medium">🔢 ရည်ညွှန်းနံပါတ် (ရွေးချယ်ရန်)</Label>
-            <Input
-              id="reference"
-              value={reference}
-              onChange={(e) => setReference(e.target.value)}
-              placeholder="လုပ်ငန်းဆောင်တာ နံပါတ်"
-              className="h-12"
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="reference" className="text-base font-medium">🔢 ရည်ညွှန်းနံပါတ် (ရွေးချယ်ရန်)</Label>
+                <Input
+                  id="reference"
+                  value={reference}
+                  onChange={(e) => setReference(e.target.value)}
+                  placeholder="လုပ်ငန်းဆောင်တာ နံပါတ်"
+                  className="h-12"
+                />
+              </div>
+            </>
+          )}
 
           {type === 'deposit' && (
             <div className="space-y-3">
