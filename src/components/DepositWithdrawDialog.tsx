@@ -300,7 +300,7 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
             </div>
           )}
 
-          {method && (
+          {method && type === 'deposit' && (
             <Card className="bg-info/10 border-info/30">
               <CardContent className="pt-4">
                 <h4 className="font-medium text-info mb-3">💳 ငွေပေးချေရန် အချက်အလက်:</h4>
