@@ -84,10 +84,10 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
     
     // Validation based on type
     if (type === 'withdrawal') {
-      if (!amount || !phone) {
+      if (!amount || !phone || !method) {
         toast({
           title: "လိုအပ်သော အချက်အလက်များ မရှိပါ",
-          description: "ငွေပမာဏနှင့် ဖုန်းနံပါတ် ဖြည့်ပါ",
+          description: "ငွေပမာဏ၊ နည်းလမ်းနှင့် ဖုန်းနံပါတ် ဖြည့်ပါ",
           variant: "destructive",
         });
         return;
@@ -154,7 +154,7 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
           user_id: userId,
           type,
           amount: numAmount,
-          method: type === 'withdrawal' ? null : method,
+          method: method,
           reference: type === 'withdrawal' ? phone : (reference || ''),
           receipt_url: receiptUrl,
           status: 'pending'
@@ -219,17 +219,31 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
           </div>
 
           {type === 'withdrawal' ? (
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="text-base font-medium">📱 ဖုန်းနံပါတ်</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="09xxxxxxxxx"
-                className="h-12 text-lg"
-              />
-            </div>
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="method" className="text-base font-medium">📱 ငွေလက်ခံမည့် နည်းလမ်း</Label>
+                <Select value={method} onValueChange={setMethod}>
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="နည်းလမ်း ရွေးပါ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="wavepay">Wave Pay</SelectItem>
+                    <SelectItem value="kbzpay">KBZ Pay</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-base font-medium">📱 ဖုန်းနံပါတ်</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="09xxxxxxxxx"
+                  className="h-12 text-lg"
+                />
+              </div>
+            </>
           ) : (
             <>
               <div className="space-y-2">
