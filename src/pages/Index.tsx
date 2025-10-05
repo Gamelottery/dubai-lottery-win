@@ -31,7 +31,7 @@ const Index = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showRegister, setShowRegister] = useState(false);
   const [currentView, setCurrentView] = useState<'lottery' | 'history' | 'admin'>('lottery');
-  const [nextDrawTime, setNextDrawTime] = useState("မနက် 9:30");
+  const [nextDrawTime, setNextDrawTime] = useState("11:00 AM");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -220,21 +220,27 @@ const Index = () => {
     }
   };
 
-  // Update next draw time
+  // Update next draw time - automatically assign to nearest upcoming draw
   useEffect(() => {
     const updateNextDraw = () => {
       const now = new Date();
       const hour = now.getHours();
-      const minute = now.getMinutes();
       
-      if (hour < 9 || (hour === 9 && minute < 30)) {
-        setNextDrawTime("မနက် 9:30");
-      } else if (hour < 14) {
-        setNextDrawTime("နေ့လည် 2:00");
-      } else if (hour < 16 || (hour === 16 && minute < 30)) {
-        setNextDrawTime("ညနေ 4:30");
+      // Draw times: 11:00 AM, 1:00 PM, 3:00 PM, 5:00 PM, 7:00 PM, 9:00 PM
+      if (hour < 11) {
+        setNextDrawTime("11:00 AM");
+      } else if (hour < 13) {
+        setNextDrawTime("1:00 PM");
+      } else if (hour < 15) {
+        setNextDrawTime("3:00 PM");
+      } else if (hour < 17) {
+        setNextDrawTime("5:00 PM");
+      } else if (hour < 19) {
+        setNextDrawTime("7:00 PM");
+      } else if (hour < 21) {
+        setNextDrawTime("9:00 PM");
       } else {
-        setNextDrawTime("မနက်ဖြန် မနက် 9:30");
+        setNextDrawTime("11:00 AM");
       }
     };
 
