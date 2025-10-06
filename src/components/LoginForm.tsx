@@ -31,25 +31,14 @@ export const LoginForm = ({ onLogin, onShowRegister }: LoginFormProps) => {
     onLogin(phone, password);
   };
 
-  const demoAccounts = [
-    { type: "User", phone: "09123456789", password: "123456" },
-    { type: "VIP", phone: "09987654321", password: "vip123" },
-    { type: "Admin", phone: "09750397287", password: "admin123" },
-  ];
-
-  const fillDemo = (account: typeof demoAccounts[0]) => {
-    setPhone(account.phone);
-    setPassword(account.password);
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <Card className="lottery-card rounded-2xl shadow-card max-w-md w-full overflow-hidden">
         {/* Login Header */}
         <div className="bg-gradient-primary p-8 text-white text-center">
           <div className="text-5xl mb-4 animate-lottery-bounce">🎰</div>
-          <h1 className="text-3xl font-bold mb-2">Myanmar 2D Lottery</h1>
-          <p className="opacity-90 text-lg">မြန်မာ ၂လုံး ထီ</p>
+          <h1 className="text-3xl font-bold mb-2">Dubai 2D</h1>
+          <p className="opacity-90 text-lg">Dubai ၂လုံး ထီ</p>
         </div>
         
         {/* Login Form */}
@@ -115,30 +104,6 @@ export const LoginForm = ({ onLogin, onShowRegister }: LoginFormProps) => {
               📝 အကောင့်အသစ်ဖွင့်ရန်
             </Button>
           </div>
-          
-          {/* Demo Accounts */}
-          <Card className="mt-8 bg-warning/10 border-warning/30 p-6">
-            <h3 className="text-base font-bold text-warning mb-4">
-              🎯 စမ်းသုံးရန် အကောင့်များ
-            </h3>
-            <div className="space-y-3">
-              {demoAccounts.map((account, index) => (
-                <div key={index} className="flex items-center justify-between text-sm">
-                  <div className="text-muted-foreground">
-                    <strong>{account.type}:</strong> {account.phone} / {account.password}
-                  </div>
-                  <Button
-                    variant="lottery-ghost"
-                    size="sm"
-                    onClick={() => fillDemo(account)}
-                    className="text-xs"
-                  >
-                    ✨ Fill
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </Card>
         </div>
       </Card>
     </div>
