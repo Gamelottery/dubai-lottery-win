@@ -60,12 +60,12 @@ export const LotteryResults = ({ nextDrawTime }: LotteryResultsProps) => {
       new Date(result.created_at).toDateString() === today
     );
 
-    const draw11am = todayResults.find(r => r.draw_time.includes('11:00') || r.draw_time.toLowerCase().includes('11:00 am'));
-    const draw1pm = todayResults.find(r => r.draw_time.includes('1:00') || r.draw_time.toLowerCase().includes('1:00 pm'));
-    const draw3pm = todayResults.find(r => r.draw_time.includes('3:00') || r.draw_time.toLowerCase().includes('3:00 pm'));
-    const draw5pm = todayResults.find(r => r.draw_time.includes('5:00') || r.draw_time.toLowerCase().includes('5:00 pm'));
-    const draw7pm = todayResults.find(r => r.draw_time.includes('7:00') || r.draw_time.toLowerCase().includes('7:00 pm'));
-    const draw9pm = todayResults.find(r => r.draw_time.includes('9:00') || r.draw_time.toLowerCase().includes('9:00 pm'));
+    const draw11am = todayResults.find(r => r.draw_time === '11:00 AM' || r.draw_time.toLowerCase() === '11:00 am');
+    const draw1pm = todayResults.find(r => r.draw_time === '1:00 PM' || r.draw_time.toLowerCase() === '1:00 pm');
+    const draw3pm = todayResults.find(r => r.draw_time === '3:00 PM' || r.draw_time.toLowerCase() === '3:00 pm');
+    const draw5pm = todayResults.find(r => r.draw_time === '5:00 PM' || r.draw_time.toLowerCase() === '5:00 pm');
+    const draw7pm = todayResults.find(r => r.draw_time === '7:00 PM' || r.draw_time.toLowerCase() === '7:00 pm');
+    const draw9pm = todayResults.find(r => r.draw_time === '9:00 PM' || r.draw_time.toLowerCase() === '9:00 pm');
 
     return {
       draw11am: draw11am?.result_number || null,
