@@ -43,6 +43,7 @@ export const AdminPanel = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [bets, setBets] = useState<any[]>([]);
   const [editingBalance, setEditingBalance] = useState<{userId: string, newBalance: number} | null>(null);
+  const [editingPassword, setEditingPassword] = useState<{userId: string, newPassword: string} | null>(null);
 
   useEffect(() => {
     fetchTransactions();
@@ -172,6 +173,41 @@ export const AdminPanel = () => {
       toast({
         title: "Error", 
         description: "Failed to update user balance",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateUserPassword = async (userId: string, newPassword: string) => {
+    if (!newPassword || newPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('update-admin-password', {
+        body: { userId, newPassword }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "အောင်မြင်ပါသည်",
+        description: "Password updated successfully"
+      });
+
+      setEditingPassword(null);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update password",
         variant: "destructive"
       });
     } finally {
@@ -426,8 +462,8 @@ export const AdminPanel = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Balance</TableHead>
+                    <TableHead>Password</TableHead>
                     <TableHead>Type</TableHead>
-                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -476,18 +512,47 @@ export const AdminPanel = () => {
                         )}
                       </TableCell>
                       <TableCell>
+                        {editingPassword?.userId === user.id ? (
+                          <div className="flex gap-2 items-center">
+                            <Input
+                              type="text"
+                              placeholder="New password"
+                              value={editingPassword.newPassword}
+                              onChange={(e) => setEditingPassword({
+                                userId: user.id,
+                                newPassword: e.target.value
+                              })}
+                              className="w-32"
+                            />
+                            <Button 
+                              size="sm" 
+                              onClick={() => updateUserPassword(user.id, editingPassword.newPassword)}
+                              disabled={isLoading}
+                            >
+                              Save
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => setEditingPassword(null)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingPassword({userId: user.id, newPassword: ''})}
+                          >
+                            🔒 Set Password
+                          </Button>
+                        )}
+                      </TableCell>
+                      <TableCell>
                         <Badge variant={user.user_type === 'admin' ? 'destructive' : user.user_type === 'vip' ? 'default' : 'secondary'}>
                           {user.user_type}
                         </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setEditingBalance({userId: user.id, newBalance: user.balance})}
-                        >
-                          Edit Balance
-                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

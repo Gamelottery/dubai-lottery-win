@@ -12,10 +12,10 @@ serve(async (req) => {
   }
 
   try {
-    const { newPassword } = await req.json()
+    const { userId, newPassword } = await req.json()
 
-    if (!newPassword) {
-      throw new Error('New password is required')
+    if (!userId || !newPassword) {
+      throw new Error('User ID and new password are required')
     }
 
     // Create admin client with service role key
@@ -30,32 +30,17 @@ serve(async (req) => {
       }
     )
 
-    // Find admin user by phone
-    const adminPhone = '09750397287'
-    const adminEmail = `${adminPhone}@lottery.com`
-
-    // Get admin user
-    const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers()
-    
-    if (listError) {
-      throw listError
-    }
-
-    const adminUser = users.find(u => u.email === adminEmail)
-
-    if (!adminUser) {
-      throw new Error('Admin user not found')
-    }
-
-    // Update password
+    // Update password for the specified user
     const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-      adminUser.id,
+      userId,
       { password: newPassword }
     )
 
     if (updateError) {
       throw updateError
     }
+
+    console.log(`Password updated successfully for user: ${userId}`)
 
     return new Response(
       JSON.stringify({ 
