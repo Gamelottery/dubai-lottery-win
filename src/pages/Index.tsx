@@ -148,12 +148,35 @@ const Index = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setCurrentView('lottery');
-    toast({
-      title: "အကောင့်မှ ထွက်ပြီးပါပြီ",
-      description: "ကျေးဇူးတင်ပါသည်",
-    });
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Logout error:', error);
+        throw error;
+      }
+      
+      // Clear local state immediately
+      setUser(null);
+      setUserProfile(null);
+      setCurrentView('lottery');
+      
+      toast({
+        title: "အကောင့်မှ ထွက်ပြီးပါပြီ",
+        description: "ကျေးဇူးတင်ပါသည်",
+      });
+    } catch (error: any) {
+      console.error('Failed to logout:', error);
+      // Force clear state even if signOut fails
+      setUser(null);
+      setUserProfile(null);
+      setCurrentView('lottery');
+      
+      toast({
+        title: "အကောင့်မှ ထွက်ပြီးပါပြီ",
+        description: "ကျေးဇူးတင်ပါသည်",
+      });
+    }
   };
 
   const handlePlaceBets = async (bets: Bet[]) => {
