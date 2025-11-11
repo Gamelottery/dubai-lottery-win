@@ -18,11 +18,14 @@ interface BettingInterfaceProps {
 
 export const BettingInterface = ({ onPlaceBets, userBalance }: BettingInterfaceProps) => {
   const [numberInput, setNumberInput] = useState("");
-  const [amountInput, setAmountInput] = useState("");
+  const [amountInput, setAmountInput] = useState("100");
   const [bets, setBets] = useState<Bet[]>([]);
+  const [multiNumberMode, setMultiNumberMode] = useState(false);
   const { toast } = useToast();
 
   const totalAmount = bets.reduce((sum, bet) => sum + bet.amount, 0);
+  
+  const quickAmounts = [100, 500, 1000, 2000, 5000, 10000];
 
   const addBet = () => {
     if (!numberInput || !amountInput) {
@@ -34,17 +37,7 @@ export const BettingInterface = ({ onPlaceBets, userBalance }: BettingInterfaceP
       return;
     }
 
-    const number = numberInput.trim();
     const amount = parseInt(amountInput);
-
-    if (number.length !== 2 || !/^\d{2}$/.test(number)) {
-      toast({
-        title: "မှားယွင်းသော နံပါတ်",
-        description: "နံပါတ် ၂ လုံးသာ ထည့်သွင်းပါ (ဥပမာ: 23)",
-        variant: "destructive",
-      });
-      return;
-    }
 
     if (amount < 100) {
       toast({
@@ -55,33 +48,53 @@ export const BettingInterface = ({ onPlaceBets, userBalance }: BettingInterfaceP
       return;
     }
 
-    // Check if number already exists
-    const existingBet = bets.find(bet => bet.number === number);
-    if (existingBet) {
-      setBets(bets.map(bet => 
-        bet.number === number 
-          ? { ...bet, amount: bet.amount + amount }
-          : bet
-      ));
-      toast({
-        title: "နံပါတ်ပေါင်းထည့်ပြီး",
-        description: `နံပါတ် ${number} တွင် ${amount.toLocaleString()} ကျပ် ပေါင်းထည့်ပြီးပါပြီ`,
-      });
-    } else {
-      const newBet: Bet = {
-        id: Date.now().toString(),
-        number,
-        amount,
-      };
-      setBets([...bets, newBet]);
-      toast({
-        title: "ထီထည့်ပြီးပါပြီ",
-        description: `နံပါတ် ${number} - ${amount.toLocaleString()} ကျပ်`,
-      });
+    // Handle multiple numbers separated by comma or space
+    const numbers = numberInput
+      .split(/[,\s]+/)
+      .map(n => n.trim())
+      .filter(n => n.length > 0);
+
+    let addedCount = 0;
+    for (const number of numbers) {
+      if (number.length !== 2 || !/^\d{2}$/.test(number)) {
+        toast({
+          title: "မှားယွင်းသော နံပါတ်",
+          description: `နံပါတ် ${number} မှားယွင်းနေပါသည် (၂ လုံးသာ ထည့်သွင်းပါ)`,
+          variant: "destructive",
+        });
+        continue;
+      }
+
+      // Check if number already exists
+      const existingBet = bets.find(bet => bet.number === number);
+      if (existingBet) {
+        setBets(prev => prev.map(bet => 
+          bet.number === number 
+            ? { ...bet, amount: bet.amount + amount }
+            : bet
+        ));
+      } else {
+        const newBet: Bet = {
+          id: Date.now().toString() + number,
+          number,
+          amount,
+        };
+        setBets(prev => [...prev, newBet]);
+      }
+      addedCount++;
     }
 
-    setNumberInput("");
-    setAmountInput("");
+    if (addedCount > 0) {
+      toast({
+        title: "ထီထည့်ပြီးပါပြီ",
+        description: `${addedCount} နံပါတ် - ${(amount * addedCount).toLocaleString()} ကျပ်`,
+      });
+      setNumberInput("");
+    }
+  };
+  
+  const setQuickAmount = (amount: number) => {
+    setAmountInput(amount.toString());
   };
 
   const removeBet = (id: string) => {
@@ -123,22 +136,41 @@ export const BettingInterface = ({ onPlaceBets, userBalance }: BettingInterfaceP
         {/* Betting Form */}
         <div className="p-8">
           <Card className="bg-muted/20 rounded-xl p-6 mb-8">
-            <h3 className="text-xl font-bold mb-6 text-primary">
-              🎫 ထီထိုးရန် ထည့်သွင်းပါ
-            </h3>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-primary">
+                🎫 ထီထိုးရန် ထည့်သွင်းပါ
+              </h3>
+              <Button
+                variant={multiNumberMode ? "default" : "outline"}
+                size="sm"
+                onClick={() => setMultiNumberMode(!multiNumberMode)}
+                className="text-xs"
+              >
+                {multiNumberMode ? "📝 တစ်နံပါတ်စီ" : "📋 များစွာ"}
+              </Button>
+            </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="space-y-6">
               <div>
-                <Label className="text-base font-medium">နံပါတ်</Label>
+                <Label className="text-base font-medium">
+                  နံပါတ် {multiNumberMode && <span className="text-muted-foreground text-sm">(comma သို့မဟုတ် space ဖြင့် ခွဲပါ)</span>}
+                </Label>
                 <Input
                   type="text"
                   value={numberInput}
-                  onChange={(e) => setNumberInput(e.target.value.replace(/\D/g, '').slice(0, 2))}
-                  placeholder="ဥပမာ: 23"
-                  maxLength={2}
-                  className="mt-2 h-12 text-center text-2xl font-bold border-2 focus:border-primary"
+                  onChange={(e) => {
+                    if (multiNumberMode) {
+                      setNumberInput(e.target.value);
+                    } else {
+                      setNumberInput(e.target.value.replace(/\D/g, '').slice(0, 2));
+                    }
+                  }}
+                  placeholder={multiNumberMode ? "ဥပမာ: 12, 23, 45, 67" : "ဥပမာ: 23"}
+                  maxLength={multiNumberMode ? undefined : 2}
+                  className="mt-2 h-14 text-center text-2xl font-bold border-2 focus:border-primary"
                 />
               </div>
+              
               <div>
                 <Label className="text-base font-medium">ငွေပမာဏ (ကျပ်)</Label>
                 <Input
@@ -148,19 +180,33 @@ export const BettingInterface = ({ onPlaceBets, userBalance }: BettingInterfaceP
                   placeholder="100"
                   min="100"
                   step="100"
-                  className="mt-2 h-12 text-center text-xl font-bold border-2 focus:border-primary"
+                  className="mt-2 h-14 text-center text-xl font-bold border-2 focus:border-primary"
                 />
+                
+                {/* Quick Amount Buttons */}
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-4">
+                  {quickAmounts.map((amount) => (
+                    <Button
+                      key={amount}
+                      variant={amountInput === amount.toString() ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setQuickAmount(amount)}
+                      className="h-10 text-sm font-bold"
+                    >
+                      {amount >= 1000 ? `${amount/1000}K` : amount}
+                    </Button>
+                  ))}
+                </div>
               </div>
-              <div className="flex items-end">
-                <Button
-                  onClick={addBet}
-                  variant="lottery-success"
-                  size="lg"
-                  className="w-full h-12"
-                >
-                  ➕ ထည့်မည်
-                </Button>
-              </div>
+              
+              <Button
+                onClick={addBet}
+                variant="lottery-success"
+                size="lg"
+                className="w-full h-14 text-lg"
+              >
+                ➕ ထည့်မည်
+              </Button>
             </div>
           </Card>
 
