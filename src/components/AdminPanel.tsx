@@ -29,6 +29,7 @@ interface Transaction {
 
 interface User {
   id: string;
+  user_id: string;
   name: string;
   phone: string;
   balance: number;
@@ -180,7 +181,7 @@ export const AdminPanel = () => {
     }
   };
 
-  const updateUserPassword = async (userId: string, newPassword: string) => {
+  const updateUserPassword = async (userAuthId: string, newPassword: string) => {
     if (!newPassword || newPassword.length < 6) {
       toast({
         title: "Error",
@@ -193,7 +194,7 @@ export const AdminPanel = () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('update-admin-password', {
-        body: { userId, newPassword }
+        body: { userId: userAuthId, newPassword }
       });
 
       if (error) throw error;
@@ -526,7 +527,7 @@ export const AdminPanel = () => {
                             />
                             <Button 
                               size="sm" 
-                              onClick={() => updateUserPassword(user.id, editingPassword.newPassword)}
+                              onClick={() => updateUserPassword(user.user_id, editingPassword.newPassword)}
                               disabled={isLoading}
                             >
                               Save
