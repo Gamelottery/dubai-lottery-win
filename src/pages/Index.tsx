@@ -341,6 +341,8 @@ const Index = () => {
               onPlaceBets={handlePlaceBets}
               userBalance={userProfile?.balance || 0}
             />
+            
+            <TransactionHistory userId={user.id} />
           </>
         )}
         
