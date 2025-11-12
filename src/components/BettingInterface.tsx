@@ -19,11 +19,8 @@ interface BettingInterfaceProps {
 export const BettingInterface = ({ onPlaceBets, userBalance }: BettingInterfaceProps) => {
   const [numberInput, setNumberInput] = useState("");
   const [amountInput, setAmountInput] = useState("100");
-  const [bets, setBets] = useState<Bet[]>([]);
   const [multiNumberMode, setMultiNumberMode] = useState(false);
   const { toast } = useToast();
-
-  const totalAmount = bets.reduce((sum, bet) => sum + bet.amount, 0);
   
   const quickAmounts = [100, 500, 1000, 2000, 5000, 10000];
 
@@ -54,7 +51,7 @@ export const BettingInterface = ({ onPlaceBets, userBalance }: BettingInterfaceP
       .map(n => n.trim())
       .filter(n => n.length > 0);
 
-    let addedCount = 0;
+    const validBets: Bet[] = [];
     for (const number of numbers) {
       if (number.length !== 2 || !/^\d{2}$/.test(number)) {
         toast({
@@ -65,52 +62,19 @@ export const BettingInterface = ({ onPlaceBets, userBalance }: BettingInterfaceP
         continue;
       }
 
-      // Check if number already exists
-      const existingBet = bets.find(bet => bet.number === number);
-      if (existingBet) {
-        setBets(prev => prev.map(bet => 
-          bet.number === number 
-            ? { ...bet, amount: bet.amount + amount }
-            : bet
-        ));
-      } else {
-        const newBet: Bet = {
-          id: Date.now().toString() + number,
-          number,
-          amount,
-        };
-        setBets(prev => [...prev, newBet]);
-      }
-      addedCount++;
+      validBets.push({
+        id: Date.now().toString() + number,
+        number,
+        amount,
+      });
     }
 
-    if (addedCount > 0) {
-      toast({
-        title: "ထီထည့်ပြီးပါပြီ",
-        description: `${addedCount} နံပါတ် - ${(amount * addedCount).toLocaleString()} ကျပ်`,
-      });
-      setNumberInput("");
-    }
-  };
-  
-  const setQuickAmount = (amount: number) => {
-    setAmountInput(amount.toString());
-  };
-
-  const removeBet = (id: string) => {
-    setBets(bets.filter(bet => bet.id !== id));
-  };
-
-  const placeBets = () => {
-    if (bets.length === 0) {
-      toast({
-        title: "ထီမထိုးရသေးပါ",
-        description: "အနည်းဆုံး တစ်နံပါတ် ထိုးပါ",
-        variant: "destructive",
-      });
+    if (validBets.length === 0) {
       return;
     }
 
+    const totalAmount = validBets.reduce((sum, bet) => sum + bet.amount, 0);
+    
     if (totalAmount > userBalance) {
       toast({
         title: "လက်ကျန်ငွေ မလုံလောက်ပါ",
@@ -120,8 +84,16 @@ export const BettingInterface = ({ onPlaceBets, userBalance }: BettingInterfaceP
       return;
     }
 
-    onPlaceBets(bets);
-    setBets([]);
+    onPlaceBets(validBets);
+    setNumberInput("");
+    toast({
+      title: "ထီထိုးပြီးပါပြီ",
+      description: `${validBets.length} နံပါတ် - ${totalAmount.toLocaleString()} ကျပ်`,
+    });
+  };
+  
+  const setQuickAmount = (amount: number) => {
+    setAmountInput(amount.toString());
   };
 
   return (
@@ -201,83 +173,17 @@ export const BettingInterface = ({ onPlaceBets, userBalance }: BettingInterfaceP
               
               <Button
                 onClick={addBet}
-                variant="lottery-success"
-                size="lg"
-                className="w-full h-14 text-lg"
+                variant="lottery"
+                size="xl"
+                className="w-full text-xl h-16"
               >
-                ➕ ထည့်မည်
+                🎯 ထီထိုးမည်
               </Button>
             </div>
-          </Card>
-
-          {/* Bet List */}
-          <div className="mb-8">
-            <h3 className="text-xl font-bold mb-6 text-primary">
-              📋 ထိုးထားသော ထီများ
-            </h3>
-            <div className="space-y-4 min-h-[100px]">
-              {bets.length === 0 ? (
-                <Card className="text-center py-12 text-muted-foreground bg-muted/10">
-                  <p className="text-lg">ထီမထိုးရသေးပါ</p>
-                  <p className="text-sm mt-2">နံပါတ်နှင့် ငွေပမာဏ ထည့်ပြီး ထည့်မည် ကိုနှိပ်ပါ</p>
-                </Card>
-              ) : (
-                bets.map((bet) => (
-                  <Card key={bet.id} className="bet-card p-4 flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                      <div className="lottery-number text-3xl font-black">
-                        {bet.number}
-                      </div>
-                      <div>
-                        <div className="font-bold text-lg text-primary">
-                          {bet.amount.toLocaleString()} ကျပ်
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          နံပါတ် {bet.number}
-                        </div>
-                      </div>
-                    </div>
-                    <Button
-                      onClick={() => removeBet(bet.id)}
-                      variant="destructive"
-                      size="sm"
-                    >
-                      🗑️
-                    </Button>
-                  </Card>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Total Amount */}
-          <Card className="bg-warning/10 border-warning/30 rounded-xl p-6 mb-8">
-            <div className="flex justify-between items-center">
-              <span className="text-xl font-bold">💵 စုစုပေါင်း</span>
-              <span className="text-3xl font-bold text-accent animate-lottery-glow">
-                {totalAmount.toLocaleString()} ကျပ်
-              </span>
-            </div>
-            <div className="text-sm text-muted-foreground mt-2">
-              လက်ကျန်ငွေ: {userBalance.toLocaleString()} ကျပ်
+            <div className="text-sm text-muted-foreground mt-4 text-center">
+              လက်ကျန်ငွေ: <span className="font-bold text-primary">{userBalance.toLocaleString()} ကျပ်</span>
             </div>
           </Card>
-
-          {/* Place Bet Button */}
-          <Button
-            onClick={placeBets}
-            variant="lottery"
-            size="xl"
-            className="w-full text-xl"
-            disabled={bets.length === 0 || totalAmount > userBalance}
-          >
-            🎯 ထီထိုးမည်
-            {bets.length > 0 && (
-              <span className="ml-2 bg-white/20 px-2 py-1 rounded-full text-sm">
-                {bets.length}
-              </span>
-            )}
-          </Button>
         </div>
       </Card>
     </div>
