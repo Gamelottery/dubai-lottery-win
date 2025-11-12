@@ -67,8 +67,10 @@ const Index = () => {
   useEffect(() => {
     if (!user) return;
 
+    // Use unique channel name per user to avoid conflicts across devices
+    const channelName = `profile-changes-${user.id}`;
     const channel = supabase
-      .channel('profile-changes')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -79,15 +81,26 @@ const Index = () => {
         },
         (payload) => {
           console.log('Profile updated in real-time:', payload);
-          setUserProfile(payload.new as UserProfile);
+          const newProfile = payload.new as UserProfile;
+          setUserProfile(newProfile);
+          
+          // Show notification when balance changes
+          if (userProfile && newProfile.balance !== userProfile.balance) {
+            toast({
+              title: "လက်ကျန်ငွေ အပ်ဒိတ်လုပ်ပြီးပါပြီ",
+              description: `လက်ကျန်ငွေ: ${newProfile.balance.toLocaleString()} ကျပ်`,
+            });
+          }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Real-time subscription status:', status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, userProfile, toast]);
 
   const fetchUserProfile = async (userId: string) => {
     try {
