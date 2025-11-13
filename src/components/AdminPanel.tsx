@@ -21,6 +21,7 @@ interface Transaction {
   reference: string;
   receipt_url: string | null;
   created_at: string;
+  name: string | null;
   profiles?: {
     name: string;
     phone: string;
@@ -353,6 +354,7 @@ export const AdminPanel = () => {
                     <TableHead>Type</TableHead>
                     <TableHead>Amount</TableHead>
                     <TableHead>Method</TableHead>
+                    <TableHead>လက်ခံသူအမည်</TableHead>
                     <TableHead>ပြေစာ</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
@@ -380,6 +382,13 @@ export const AdminPanel = () => {
                             <p className="text-muted-foreground text-xs">Ref: {transaction.reference}</p>
                           )}
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        {transaction.type === 'withdrawal' && transaction.name ? (
+                          <span className="font-medium">{transaction.name}</span>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">-</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         {transaction.receipt_url ? (
