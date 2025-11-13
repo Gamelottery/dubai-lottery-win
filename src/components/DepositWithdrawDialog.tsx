@@ -22,6 +22,7 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
   const [method, setMethod] = useState("");
   const [reference, setReference] = useState("");
   const [phone, setPhone] = useState("");
+  const [name, setName] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -84,10 +85,10 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
     
     // Validation based on type
     if (type === 'withdrawal') {
-      if (!amount || !phone || !method) {
+      if (!amount || !phone || !method || !name) {
         toast({
           title: "လိုအပ်သော အချက်အလက်များ မရှိပါ",
-          description: "ငွေပမာဏ၊ နည်းလမ်းနှင့် ဖုန်းနံပါတ် ဖြည့်ပါ",
+          description: "ငွေပမာဏ၊ နည်းလမ်း၊ အမည်နှင့် ဖုန်းနံပါတ် ဖြည့်ပါ",
           variant: "destructive",
         });
         return;
@@ -156,6 +157,7 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
           amount: numAmount,
           method: method,
           reference: type === 'withdrawal' ? phone : (reference || ''),
+          name: type === 'withdrawal' ? name : null,
           receipt_url: receiptUrl,
           status: 'pending'
         });
@@ -172,6 +174,7 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
       setMethod("");
       setReference("");
       setPhone("");
+      setName("");
       setReceiptFile(null);
       onSuccess();
     } catch (error) {
@@ -220,6 +223,17 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
 
           {type === 'withdrawal' ? (
             <>
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-base font-medium">👤 အမည်</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="လက်ခံမည့်သူ အမည်"
+                  className="h-12 text-lg"
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="method" className="text-base font-medium">📱 ငွေလက်ခံမည့် နည်းလမ်း</Label>
                 <Select value={method} onValueChange={setMethod}>

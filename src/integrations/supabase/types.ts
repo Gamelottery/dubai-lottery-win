@@ -178,6 +178,7 @@ export type Database = {
           created_at: string
           id: string
           method: string | null
+          name: string | null
           receipt_url: string | null
           reference: string | null
           status: string
@@ -190,6 +191,7 @@ export type Database = {
           created_at?: string
           id?: string
           method?: string | null
+          name?: string | null
           receipt_url?: string | null
           reference?: string | null
           status?: string
@@ -202,6 +204,7 @@ export type Database = {
           created_at?: string
           id?: string
           method?: string | null
+          name?: string | null
           receipt_url?: string | null
           reference?: string | null
           status?: string
