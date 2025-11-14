@@ -47,6 +47,15 @@ export const BettingInterface = ({ onPlaceBets, userBalance }: BettingInterfaceP
     const bets: Bet[] = [];
     const amount = baseAmount * multiplier;
 
+    // Big/Small bet logic
+    const betNumber = type === 'big' ? '5-9' : '0-4';
+    bets.push({
+      id: Date.now().toString() + type,
+      number: betNumber,
+      amount,
+    });
+
+    // Add color bets if selected
     if (selectedColor) {
       bets.push({
         id: Date.now().toString() + selectedColor,
@@ -55,6 +64,7 @@ export const BettingInterface = ({ onPlaceBets, userBalance }: BettingInterfaceP
       });
     }
 
+    // Add individual number bets if selected
     selectedNumbers.forEach((num) => {
       bets.push({
         id: Date.now().toString() + num,
@@ -62,15 +72,6 @@ export const BettingInterface = ({ onPlaceBets, userBalance }: BettingInterfaceP
         amount,
       });
     });
-
-    if (bets.length === 0) {
-      toast({
-        title: "ရွေးချယ်မှု မရှိပါ",
-        description: "အရောင် သို့မဟုတ် နံပါတ် ရွေးပါ",
-        variant: "destructive",
-      });
-      return;
-    }
 
     const totalAmount = bets.reduce((sum, bet) => sum + bet.amount, 0);
     
