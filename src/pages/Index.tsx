@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { LotteryHeader } from "../components/LotteryHeader";
 import { LotteryResults } from "../components/LotteryResults";
+import { LotteryResultsHistory } from "../components/LotteryResultsHistory";
 import { BettingInterface } from "../components/BettingInterface";
 import { LoginForm } from "../components/LoginForm";
 import { UserRegistrationForm } from "../components/UserRegistrationForm";
@@ -30,7 +31,7 @@ const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showRegister, setShowRegister] = useState(false);
-  const [currentView, setCurrentView] = useState<'lottery' | 'history' | 'admin'>('lottery');
+  const [currentView, setCurrentView] = useState<'lottery' | 'history' | 'results-history' | 'admin'>('lottery');
   const [nextDrawTime, setNextDrawTime] = useState("11:00 AM");
   const { toast } = useToast();
 
@@ -360,7 +361,13 @@ const Index = () => {
             variant={currentView === 'history' ? 'default' : 'outline'}
             onClick={() => setCurrentView('history')}
           >
-            📊 မှတ်တမ်း
+            📊 ငွေသွင်း/ငွေထုတ်
+          </Button>
+          <Button
+            variant={currentView === 'results-history' ? 'default' : 'outline'}
+            onClick={() => setCurrentView('results-history')}
+          >
+            📋 ထီရလဒ်
           </Button>
           {userProfile?.user_type === 'admin' && (
             <Button
@@ -387,6 +394,10 @@ const Index = () => {
         
         {currentView === 'history' && user && (
           <TransactionHistory userId={user.id} />
+        )}
+        
+        {currentView === 'results-history' && (
+          <LotteryResultsHistory />
         )}
         
         {currentView === 'admin' && userProfile?.user_type === 'admin' && (
