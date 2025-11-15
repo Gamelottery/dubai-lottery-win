@@ -122,7 +122,7 @@ export const UserRegistrationForm = ({ onBack, onSuccess }: UserRegistrationForm
         <div className="bg-gradient-accent p-8 text-white text-center">
           <div className="text-5xl mb-4 animate-lottery-bounce">📝</div>
           <h1 className="text-3xl font-bold mb-2">အကောင့်အသစ်ဖွင့်ရန်</h1>
-          <p className="opacity-90 text-lg">Myanmar 2D Lottery</p>
+          <p className="opacity-90 text-lg">Dubai 2D Lottery</p>
         </div>
         
         {/* Registration Form */}

@@ -91,10 +91,10 @@ export const LotteryHeader = ({
       </div>
       <div className="text-center py-6">
         <h1 className="text-3xl font-bold text-primary mb-2">
-          🎰 BM 2D
+          🎰 Dubai 2D
         </h1>
         <p className="text-muted-foreground text-lg">
-          BM ၂လုံး ထီ - ကံကောင်းပါစေ! 🍀
+          Dubai ၂လုံး ထီ - ကံကောင်းပါစေ! 🍀
         </p>
       </div>
     </div>

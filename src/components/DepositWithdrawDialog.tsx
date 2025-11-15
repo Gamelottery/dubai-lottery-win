@@ -323,35 +323,35 @@ export const DepositWithdrawDialog = ({ type, userBalance, onSuccess, userId, ch
                     <div className="p-3 bg-background rounded-lg">
                       <p className="font-medium">KPay</p>
                       <p>📱 09123456789</p>
-                      <p>👤 Myanmar 2D Lottery Admin</p>
+                      <p>👤 Dubai 2D Lottery Admin</p>
                     </div>
                   )}
                   {method === 'wavepay' && (
                     <div className="p-3 bg-background rounded-lg">
                       <p className="font-medium">Wave Pay</p>
                       <p>📱 09987654321</p>
-                      <p>👤 Myanmar 2D Lottery Admin</p>
+                      <p>👤 Dubai 2D Lottery Admin</p>
                     </div>
                   )}
                   {method === 'cbpay' && (
                     <div className="p-3 bg-background rounded-lg">
                       <p className="font-medium">CB Pay</p>
                       <p>📱 09456789123</p>
-                      <p>👤 Myanmar 2D Lottery Admin</p>
+                      <p>👤 Dubai 2D Lottery Admin</p>
                     </div>
                   )}
                   {method === 'ayapay' && (
                     <div className="p-3 bg-background rounded-lg">
                       <p className="font-medium">AYA Pay</p>
                       <p>📱 09789123456</p>
-                      <p>👤 Myanmar 2D Lottery Admin</p>
+                      <p>👤 Dubai 2D Lottery Admin</p>
                     </div>
                   )}
                   {method === 'bank' && (
                     <div className="p-3 bg-background rounded-lg">
                       <p className="font-medium">CB Bank</p>
                       <p>🏦 Account: 12345-67890-123</p>
-                      <p>👤 Name: Myanmar 2D Lottery</p>
+                      <p>👤 Name: Dubai 2D Lottery</p>
                       <p>🏢 Branch: Yangon Main</p>
                     </div>
                   )}
