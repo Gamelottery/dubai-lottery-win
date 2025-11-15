@@ -7,7 +7,6 @@ import { LoginForm } from "../components/LoginForm";
 import { UserRegistrationForm } from "../components/UserRegistrationForm";
 import { AdminPanel } from "../components/AdminPanel";
 import { TransactionHistory } from "../components/TransactionHistory";
-import { GameHistory } from "../components/GameHistory";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -381,8 +380,6 @@ const Index = () => {
               onPlaceBets={handlePlaceBets}
               userBalance={userProfile?.balance || 0}
             />
-            
-            <GameHistory />
             
             <TransactionHistory userId={user.id} />
           </>
