@@ -75,6 +75,9 @@ export default {
         'sparkle': 'sparkle 2s ease-in-out infinite',
         'gold-glow': 'gold-glow 3s ease-in-out infinite',
         'luxury-pulse': 'luxury-pulse 2s ease-in-out infinite',
+        'fall': 'fall linear forwards',
+        'spin-slow': 'spin-slow 1s linear infinite',
+        'scale-in': 'scale-in 0.5s ease-out forwards',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -132,6 +135,37 @@ export default {
           "50%": {
             opacity: "0.9",
             filter: "brightness(1.2)",
+          },
+        },
+        "fall": {
+          "0%": {
+            transform: "translateY(0) rotate(0deg)",
+            opacity: "1",
+          },
+          "100%": {
+            transform: "translateY(100vh) rotate(720deg)",
+            opacity: "0",
+          },
+        },
+        "spin-slow": {
+          from: {
+            transform: "rotate(0deg)",
+          },
+          to: {
+            transform: "rotate(360deg)",
+          },
+        },
+        "scale-in": {
+          "0%": {
+            transform: "scale(0.5)",
+            opacity: "0",
+          },
+          "50%": {
+            transform: "scale(1.1)",
+          },
+          "100%": {
+            transform: "scale(1)",
+            opacity: "1",
           },
         },
       },
