@@ -117,6 +117,76 @@
     transition: var(--transition-bounce);
   }
   
+  /* Luxury Sparkle & Shine Animations */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+  
+  @keyframes sparkle {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.05);
+    }
+  }
+  
+  @keyframes gold-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px hsl(45 100% 51% / 0.3),
+                  0 0 40px hsl(45 100% 51% / 0.2);
+    }
+    50% {
+      box-shadow: 0 0 30px hsl(45 100% 51% / 0.5),
+                  0 0 60px hsl(45 100% 51% / 0.3),
+                  0 0 80px hsl(45 100% 51% / 0.1);
+    }
+  }
+  
+  @keyframes luxury-pulse {
+    0%, 100% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+    50% {
+      opacity: 0.9;
+      filter: brightness(1.2);
+    }
+  }
+  
+  /* Luxury utility classes */
+  .gold-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(45 100% 51%) 0%,
+      hsl(48 100% 65%) 25%,
+      hsl(42 100% 70%) 50%,
+      hsl(48 100% 65%) 75%,
+      hsl(45 100% 51%) 100%
+    );
+    background-size: 200% auto;
+    animation: shimmer 3s linear infinite;
+  }
+  
+  .gold-sparkle {
+    animation: sparkle 2s ease-in-out infinite;
+  }
+  
+  .gold-glow-effect {
+    animation: gold-glow 3s ease-in-out infinite;
+  }
+  
+  .luxury-pulse-effect {
+    animation: luxury-pulse 2s ease-in-out infinite;
+  }
+
   /* Number display styles */
   .lottery-number {
     background: var(--gradient-primary);
@@ -126,6 +196,7 @@
     font-weight: 800;
     font-size: 2rem;
     text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+    animation: sparkle 2s ease-in-out infinite;
   }
   
   /* Betting card animation */

@@ -53,7 +53,7 @@ export const LotteryHeader = ({
               <Wallet className="h-5 w-5 md:h-6 md:w-6" />
               <div>
                 <div className="text-xs opacity-75">လက်ကျန်ငွေ</div>
-                <div className="font-bold text-lg md:text-xl lottery-glow">
+                <div className="font-bold text-lg md:text-xl animate-sparkle">
                   {balance.toLocaleString()} ကျပ်
                 </div>
               </div>
@@ -90,7 +90,7 @@ export const LotteryHeader = ({
         </div>
       </div>
       <div className="text-center py-6">
-        <h1 className="text-3xl font-bold text-primary mb-2">
+        <h1 className="text-3xl font-bold text-primary mb-2 animate-sparkle">
           🎰 Dubai 2D
         </h1>
         <p className="text-muted-foreground text-lg">

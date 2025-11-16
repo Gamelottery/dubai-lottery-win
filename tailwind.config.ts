@@ -71,6 +71,10 @@ export default {
         'lottery-bounce': 'bounce 1s infinite',
         'lottery-spin': 'spin 3s linear infinite',
         'lottery-glow': 'pulse 2s ease-in-out infinite alternate',
+        'shimmer': 'shimmer 3s linear infinite',
+        'sparkle': 'sparkle 2s ease-in-out infinite',
+        'gold-glow': 'gold-glow 3s ease-in-out infinite',
+        'luxury-pulse': 'luxury-pulse 2s ease-in-out infinite',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -92,6 +96,42 @@ export default {
           },
           to: {
             height: "0",
+          },
+        },
+        "shimmer": {
+          "0%": {
+            backgroundPosition: "-200% center",
+          },
+          "100%": {
+            backgroundPosition: "200% center",
+          },
+        },
+        "sparkle": {
+          "0%, 100%": {
+            opacity: "1",
+            transform: "scale(1)",
+          },
+          "50%": {
+            opacity: "0.7",
+            transform: "scale(1.05)",
+          },
+        },
+        "gold-glow": {
+          "0%, 100%": {
+            boxShadow: "0 0 20px hsl(45 100% 51% / 0.3), 0 0 40px hsl(45 100% 51% / 0.2)",
+          },
+          "50%": {
+            boxShadow: "0 0 30px hsl(45 100% 51% / 0.5), 0 0 60px hsl(45 100% 51% / 0.3), 0 0 80px hsl(45 100% 51% / 0.1)",
+          },
+        },
+        "luxury-pulse": {
+          "0%, 100%": {
+            opacity: "1",
+            filter: "brightness(1)",
+          },
+          "50%": {
+            opacity: "0.9",
+            filter: "brightness(1.2)",
           },
         },
       },
