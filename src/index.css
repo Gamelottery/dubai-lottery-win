@@ -2,61 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Dubai 2D Lottery Design System - Beautiful Purple/Blue Theme */
+/* Dubai 2D Lottery Design System - Luxury Gold & Dubai Theme */
 
 @layer base {
   :root {
-    /* Primary Lottery Theme Colors */
-    --primary: 259 94% 51%;  /* Rich Purple */
-    --primary-foreground: 0 0% 100%;
-    --primary-light: 259 94% 65%;
-    --primary-dark: 259 94% 35%;
+    /* Primary Gold Theme - Dubai Luxury */
+    --primary: 45 100% 51%;  /* Rich Gold */
+    --primary-foreground: 25 20% 10%;
+    --primary-light: 48 100% 65%;
+    --primary-dark: 42 100% 35%;
     
-    /* Secondary Blue Accent */
-    --secondary: 217 91% 60%;  /* Vibrant Blue */
+    /* Secondary Royal Blue Accent */
+    --secondary: 195 85% 45%;  /* Dubai Teal/Blue */
     --secondary-foreground: 0 0% 100%;
-    --secondary-light: 217 91% 75%;
-    --secondary-dark: 217 91% 45%;
+    --secondary-light: 195 85% 60%;
+    --secondary-dark: 195 85% 30%;
     
-    /* Background System */
-    --background: 240 33% 7%;  /* Deep Dark Blue */
-    --background-light: 240 25% 12%;
-    --foreground: 0 0% 100%;
+    /* Background System - Dark Luxury */
+    --background: 25 25% 8%;  /* Rich Dark Brown */
+    --background-light: 25 20% 12%;
+    --foreground: 45 100% 95%;
     
     /* Card System */
-    --card: 240 25% 12%;
-    --card-foreground: 0 0% 100%;
-    --card-light: 240 20% 18%;
+    --card: 25 20% 12%;
+    --card-foreground: 45 100% 95%;
+    --card-light: 25 15% 18%;
     
     /* Interactive Elements */
-    --accent: 142 76% 36%;  /* Success Green */
+    --accent: 165 70% 40%;  /* Emerald Green */
     --accent-foreground: 0 0% 100%;
-    --accent-light: 142 76% 50%;
+    --accent-light: 165 70% 55%;
     
     /* Warning & Error */
-    --warning: 38 92% 50%;  /* Golden Yellow */
-    --warning-foreground: 0 0% 100%;
+    --warning: 35 95% 55%;  /* Bright Gold Warning */
+    --warning-foreground: 25 20% 10%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
     /* UI Elements */
-    --border: 240 20% 25%;
-    --input: 240 20% 15%;
-    --ring: 259 94% 51%;
-    --muted: 240 20% 18%;
-    --muted-foreground: 240 5% 65%;
+    --border: 25 20% 22%;
+    --input: 25 20% 15%;
+    --ring: 45 100% 51%;
+    --muted: 25 15% 18%;
+    --muted-foreground: 45 20% 65%;
     
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(259 94% 51%), hsl(217 91% 60%));
-    --gradient-secondary: linear-gradient(135deg, hsl(217 91% 60%), hsl(142 76% 36%));
-    --gradient-background: linear-gradient(135deg, hsl(240 33% 7%), hsl(240 25% 12%));
-    --gradient-card: linear-gradient(135deg, hsl(240 25% 12%), hsl(240 20% 18%));
+    /* Gradients - Gold & Luxury */
+    --gradient-primary: linear-gradient(135deg, hsl(45 100% 51%), hsl(35 100% 45%));
+    --gradient-secondary: linear-gradient(135deg, hsl(195 85% 45%), hsl(165 70% 40%));
+    --gradient-background: linear-gradient(135deg, hsl(25 25% 8%), hsl(25 20% 12%));
+    --gradient-card: linear-gradient(135deg, hsl(25 20% 12%), hsl(25 15% 18%));
     
-    /* Shadows */
-    --shadow-primary: 0 10px 40px hsl(259 94% 51% / 0.3);
-    --shadow-secondary: 0 10px 40px hsl(217 91% 60% / 0.3);
-    --shadow-card: 0 8px 32px hsl(240 33% 7% / 0.6);
-    --shadow-glow: 0 0 60px hsl(259 94% 51% / 0.4);
+    /* Shadows - Gold Glow */
+    --shadow-primary: 0 10px 40px hsl(45 100% 51% / 0.4);
+    --shadow-secondary: 0 10px 40px hsl(195 85% 45% / 0.3);
+    --shadow-card: 0 8px 32px hsl(25 25% 8% / 0.6);
+    --shadow-glow: 0 0 60px hsl(45 100% 51% / 0.5);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
