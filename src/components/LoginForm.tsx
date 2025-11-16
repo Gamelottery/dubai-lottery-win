@@ -37,7 +37,7 @@ export const LoginForm = ({ onLogin, onShowRegister }: LoginFormProps) => {
         {/* Login Header */}
         <div className="bg-gradient-primary p-8 text-white text-center">
           <div className="text-5xl mb-4 animate-lottery-bounce">🎰</div>
-          <h1 className="text-3xl font-bold mb-2">Dubai 2D</h1>
+          <h1 className="text-3xl font-bold mb-2 animate-sparkle">Dubai 2D</h1>
           <p className="opacity-90 text-lg">Dubai ၂လုံး ထီ</p>
         </div>
         
