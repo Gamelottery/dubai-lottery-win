@@ -8,6 +8,7 @@ import { LoginForm } from "../components/LoginForm";
 import { UserRegistrationForm } from "../components/UserRegistrationForm";
 import { AdminPanel } from "../components/AdminPanel";
 import { TransactionHistory } from "../components/TransactionHistory";
+import { WinningAnimation } from "../components/WinningAnimation";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +34,8 @@ const Index = () => {
   const [showRegister, setShowRegister] = useState(false);
   const [currentView, setCurrentView] = useState<'lottery' | 'history' | 'results-history' | 'admin'>('lottery');
   const [nextDrawTime, setNextDrawTime] = useState("11:00 AM");
+  const [showWinningAnimation, setShowWinningAnimation] = useState(false);
+  const [winningAmount, setWinningAmount] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -102,6 +105,43 @@ const Index = () => {
       supabase.removeChannel(channel);
     };
   }, [user, userProfile, toast]);
+
+  // Real-time subscription for winning bets
+  useEffect(() => {
+    if (!user) return;
+
+    const winningChannel = supabase
+      .channel(`bet-wins-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'bets',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          const updatedBet = payload.new as any;
+          
+          // Trigger winning animation if bet status changed to "won"
+          if (updatedBet.status === 'won' && updatedBet.winning_amount && updatedBet.winning_amount > 0) {
+            setWinningAmount(updatedBet.winning_amount);
+            setShowWinningAnimation(true);
+            
+            toast({
+              title: "🎉 ထီပေါက်ပါပြီ!",
+              description: `နံပါတ် ${updatedBet.number} - ${updatedBet.winning_amount.toLocaleString()} ကျပ် ရရှိပါပြီ!`,
+              duration: 5000,
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(winningChannel);
+    };
+  }, [user, toast]);
 
   const fetchUserProfile = async (userId: string) => {
     try {
@@ -404,6 +444,13 @@ const Index = () => {
           <AdminPanel />
         )}
       </div>
+      
+      {/* Winning Animation Overlay */}
+      <WinningAnimation 
+        show={showWinningAnimation} 
+        winAmount={winningAmount}
+        onComplete={() => setShowWinningAnimation(false)}
+      />
     </div>
   );
 };
