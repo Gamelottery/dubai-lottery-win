@@ -9,7 +9,6 @@ import { UserRegistrationForm } from "../components/UserRegistrationForm";
 import { AdminPanel } from "../components/AdminPanel";
 import { TransactionHistory } from "../components/TransactionHistory";
 import { WinningAnimation } from "../components/WinningAnimation";
-import { Leaderboard } from "../components/Leaderboard";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -428,8 +427,6 @@ const Index = () => {
               onPlaceBets={handlePlaceBets}
               userBalance={userProfile?.balance || 0}
             />
-            
-            <Leaderboard />
             
             <TransactionHistory userId={user.id} />
           </>
