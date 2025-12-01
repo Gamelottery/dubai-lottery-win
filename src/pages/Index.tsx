@@ -5,6 +5,7 @@ import { LotteryResults } from "../components/LotteryResults";
 import { LotteryResultsHistory } from "../components/LotteryResultsHistory";
 import { BettingInterface } from "../components/BettingInterface";
 import { WingoBetting } from "../components/WingoBetting";
+import { WingoHistory } from "../components/WingoHistory";
 import { LoginForm } from "../components/LoginForm";
 import { UserRegistrationForm } from "../components/UserRegistrationForm";
 import { AdminPanel } from "../components/AdminPanel";
@@ -501,11 +502,12 @@ const Index = () => {
                 </TabsTrigger>
               </TabsList>
               
-              <TabsContent value="wingo">
+              <TabsContent value="wingo" className="space-y-6">
                 <WingoBetting
                   onPlaceBet={handlePlaceWingoBet}
                   userBalance={userProfile?.balance || 0}
                 />
+                <WingoHistory />
               </TabsContent>
               
               <TabsContent value="2d">
