@@ -6,6 +6,7 @@ import { LotteryResultsHistory } from "../components/LotteryResultsHistory";
 import { BettingInterface } from "../components/BettingInterface";
 import { WingoBetting } from "../components/WingoBetting";
 import { WingoHistory } from "../components/WingoHistory";
+import { CountdownTimer } from "../components/CountdownTimer";
 import { LoginForm } from "../components/LoginForm";
 import { UserRegistrationForm } from "../components/UserRegistrationForm";
 import { AdminPanel } from "../components/AdminPanel";
@@ -490,6 +491,10 @@ const Index = () => {
         
         {currentView === 'lottery' && (
           <>
+            <div className="max-w-2xl mx-auto">
+              <CountdownTimer nextDrawTime={nextDrawTime} />
+            </div>
+            
             <LotteryResults nextDrawTime={nextDrawTime} />
             
             <Tabs defaultValue="wingo" className="max-w-2xl mx-auto">
