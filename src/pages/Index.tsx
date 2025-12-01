@@ -4,12 +4,14 @@ import { LotteryHeader } from "../components/LotteryHeader";
 import { LotteryResults } from "../components/LotteryResults";
 import { LotteryResultsHistory } from "../components/LotteryResultsHistory";
 import { BettingInterface } from "../components/BettingInterface";
+import { WingoBetting } from "../components/WingoBetting";
 import { LoginForm } from "../components/LoginForm";
 import { UserRegistrationForm } from "../components/UserRegistrationForm";
 import { AdminPanel } from "../components/AdminPanel";
 import { TransactionHistory } from "../components/TransactionHistory";
 import { WinningAnimation } from "../components/WinningAnimation";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -26,6 +28,14 @@ interface Bet {
   id: string;
   number: string;
   amount: number;
+}
+
+interface WingoBet {
+  id: string;
+  type: 'color' | 'number' | 'size';
+  value: string;
+  amount: number;
+  multiplier: number;
 }
 
 const Index = () => {
@@ -317,6 +327,64 @@ const Index = () => {
     }
   };
 
+  const handlePlaceWingoBet = async (bet: WingoBet) => {
+    if (!user || !userProfile) return;
+    
+    if (userProfile.balance < bet.amount) {
+      toast({
+        title: "လက်ကျန်ငွေ မလုံလောက်ပါ",
+        description: "ငွေသွင်းပြီး ထီထိုးပါ",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Format bet number based on type
+      let betNumber = '';
+      if (bet.type === 'color') {
+        betNumber = `color_${bet.value}`;
+      } else if (bet.type === 'number') {
+        betNumber = bet.value.padStart(2, '0');
+      } else {
+        betNumber = `size_${bet.value}`;
+      }
+
+      const { error } = await supabase
+        .from('bets')
+        .insert({
+          user_id: user.id,
+          number: betNumber,
+          amount: bet.amount,
+          draw_time: nextDrawTime,
+          status: 'pending'
+        });
+
+      if (error) throw error;
+
+      // Update user balance
+      const newBalance = userProfile.balance - bet.amount;
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ balance: newBalance })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      setUserProfile({
+        ...userProfile,
+        balance: newBalance
+      });
+
+    } catch (error) {
+      toast({
+        title: "ထီထိုးရန် မအောင်မြင်ပါ",
+        description: "ပြန်လည်ကြိုးစားပါ",
+        variant: "destructive",
+      });
+    }
+  };
+
   const refreshUserProfile = () => {
     if (user) {
       fetchUserProfile(user.id);
@@ -423,10 +491,30 @@ const Index = () => {
           <>
             <LotteryResults nextDrawTime={nextDrawTime} />
             
-            <BettingInterface
-              onPlaceBets={handlePlaceBets}
-              userBalance={userProfile?.balance || 0}
-            />
+            <Tabs defaultValue="wingo" className="max-w-2xl mx-auto">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="wingo" className="text-lg font-bold">
+                  🎰 Wingo
+                </TabsTrigger>
+                <TabsTrigger value="2d" className="text-lg font-bold">
+                  🎯 2D ထိုးရန်
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="wingo">
+                <WingoBetting
+                  onPlaceBet={handlePlaceWingoBet}
+                  userBalance={userProfile?.balance || 0}
+                />
+              </TabsContent>
+              
+              <TabsContent value="2d">
+                <BettingInterface
+                  onPlaceBets={handlePlaceBets}
+                  userBalance={userProfile?.balance || 0}
+                />
+              </TabsContent>
+            </Tabs>
             
             <TransactionHistory userId={user.id} />
           </>
