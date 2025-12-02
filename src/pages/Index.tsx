@@ -461,18 +461,18 @@ const Index = () => {
         {/* Navigation */}
         <div className="flex gap-2 justify-center flex-wrap">
           <Button
-            variant={currentView === 'wingo' ? 'default' : 'outline'}
-            onClick={() => setCurrentView('wingo')}
-            className="text-lg"
-          >
-            🎰 Wingo
-          </Button>
-          <Button
             variant={currentView === '2d' ? 'default' : 'outline'}
             onClick={() => setCurrentView('2d')}
             className="text-lg"
           >
             🎯 2D
+          </Button>
+          <Button
+            variant={currentView === 'wingo' ? 'default' : 'outline'}
+            onClick={() => setCurrentView('wingo')}
+            className="text-lg"
+          >
+            🎰 Wingo
           </Button>
           <Button
             variant={currentView === 'history' ? 'default' : 'outline'}
