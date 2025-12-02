@@ -10,11 +10,14 @@ interface WingoBet {
   value: string;
   amount: number;
   multiplier: number;
+  period: '30s' | '1min' | '3min' | '5min';
 }
 
 interface WingoBettingProps {
   onPlaceBet: (bet: WingoBet) => void;
   userBalance: number;
+  selectedPeriod: '30s' | '1min' | '3min' | '5min';
+  onPeriodChange: (period: '30s' | '1min' | '3min' | '5min') => void;
 }
 
 const colors = [
@@ -30,7 +33,7 @@ const sizes = [
   { name: 'small', label: 'အသေး (0-4)', multiplier: 2 },
 ];
 
-export const WingoBetting = ({ onPlaceBet, userBalance }: WingoBettingProps) => {
+export const WingoBetting = ({ onPlaceBet, userBalance, selectedPeriod, onPeriodChange }: WingoBettingProps) => {
   const [selectedType, setSelectedType] = useState<'color' | 'number' | 'size' | null>(null);
   const [selectedValue, setSelectedValue] = useState<string>('');
   const [amountInput, setAmountInput] = useState("100");
@@ -104,6 +107,7 @@ export const WingoBetting = ({ onPlaceBet, userBalance }: WingoBettingProps) => 
       value: selectedValue,
       amount,
       multiplier,
+      period: selectedPeriod,
     };
 
     onPlaceBet(bet);
@@ -127,6 +131,29 @@ export const WingoBetting = ({ onPlaceBet, userBalance }: WingoBettingProps) => 
         </div>
 
         <div className="p-6 space-y-6">
+          {/* Period Selection */}
+          <div className="space-y-3">
+            <h3 className="text-lg font-bold text-primary flex items-center gap-2">
+              ⏱️ အချိန်ရွေးချယ်ရန်
+            </h3>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { value: '30s', label: '30 စက္ကန့်' },
+                { value: '1min', label: '1 မိနစ်' },
+                { value: '3min', label: '3 မိနစ်' },
+                { value: '5min', label: '5 မိနစ်' },
+              ].map((period) => (
+                <Button
+                  key={period.value}
+                  onClick={() => onPeriodChange(period.value as any)}
+                  variant={selectedPeriod === period.value ? 'default' : 'outline'}
+                  className="h-14 text-sm font-bold transition-all duration-300"
+                >
+                  {period.label}
+                </Button>
+              ))}
+            </div>
+          </div>
           {/* Color Selection */}
           <div className="space-y-3">
             <h3 className="text-lg font-bold text-primary flex items-center gap-2">
