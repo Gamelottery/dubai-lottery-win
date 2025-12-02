@@ -13,7 +13,6 @@ import { AdminPanel } from "../components/AdminPanel";
 import { TransactionHistory } from "../components/TransactionHistory";
 import { WinningAnimation } from "../components/WinningAnimation";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -44,7 +43,7 @@ const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showRegister, setShowRegister] = useState(false);
-  const [currentView, setCurrentView] = useState<'lottery' | 'history' | 'results-history' | 'admin'>('lottery');
+  const [currentView, setCurrentView] = useState<'wingo' | '2d' | 'history' | 'results-history' | 'admin'>('wingo');
   const [nextDrawTime, setNextDrawTime] = useState("11:00 AM");
   const [showWinningAnimation, setShowWinningAnimation] = useState(false);
   const [winningAmount, setWinningAmount] = useState(0);
@@ -251,7 +250,7 @@ const Index = () => {
       // Clear local state immediately
       setUser(null);
       setUserProfile(null);
-      setCurrentView('lottery');
+      setCurrentView('wingo');
       
       toast({
         title: "အကောင့်မှ ထွက်ပြီးပါပြီ",
@@ -262,7 +261,7 @@ const Index = () => {
       // Force clear state even if signOut fails
       setUser(null);
       setUserProfile(null);
-      setCurrentView('lottery');
+      setCurrentView('wingo');
       
       toast({
         title: "အကောင့်မှ ထွက်ပြီးပါပြီ",
@@ -462,10 +461,18 @@ const Index = () => {
         {/* Navigation */}
         <div className="flex gap-2 justify-center flex-wrap">
           <Button
-            variant={currentView === 'lottery' ? 'default' : 'outline'}
-            onClick={() => setCurrentView('lottery')}
+            variant={currentView === 'wingo' ? 'default' : 'outline'}
+            onClick={() => setCurrentView('wingo')}
+            className="text-lg"
           >
-            🎯 လောင်းကစား
+            🎰 Wingo
+          </Button>
+          <Button
+            variant={currentView === '2d' ? 'default' : 'outline'}
+            onClick={() => setCurrentView('2d')}
+            className="text-lg"
+          >
+            🎯 2D
           </Button>
           <Button
             variant={currentView === 'history' ? 'default' : 'outline'}
@@ -489,7 +496,17 @@ const Index = () => {
           )}
         </div>
         
-        {currentView === 'lottery' && (
+        {currentView === 'wingo' && (
+          <div className="max-w-2xl mx-auto space-y-6">
+            <WingoBetting
+              onPlaceBet={handlePlaceWingoBet}
+              userBalance={userProfile?.balance || 0}
+            />
+            <WingoHistory />
+          </div>
+        )}
+        
+        {currentView === '2d' && (
           <>
             <div className="max-w-2xl mx-auto">
               <CountdownTimer nextDrawTime={nextDrawTime} />
@@ -497,31 +514,12 @@ const Index = () => {
             
             <LotteryResults nextDrawTime={nextDrawTime} />
             
-            <Tabs defaultValue="wingo" className="max-w-2xl mx-auto">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="wingo" className="text-lg font-bold">
-                  🎰 Wingo
-                </TabsTrigger>
-                <TabsTrigger value="2d" className="text-lg font-bold">
-                  🎯 2D ထိုးရန်
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="wingo" className="space-y-6">
-                <WingoBetting
-                  onPlaceBet={handlePlaceWingoBet}
-                  userBalance={userProfile?.balance || 0}
-                />
-                <WingoHistory />
-              </TabsContent>
-              
-              <TabsContent value="2d">
-                <BettingInterface
-                  onPlaceBets={handlePlaceBets}
-                  userBalance={userProfile?.balance || 0}
-                />
-              </TabsContent>
-            </Tabs>
+            <div className="max-w-2xl mx-auto">
+              <BettingInterface
+                onPlaceBets={handlePlaceBets}
+                userBalance={userProfile?.balance || 0}
+              />
+            </div>
             
             <TransactionHistory userId={user.id} />
           </>
