@@ -6,6 +6,7 @@ import { LotteryResultsHistory } from "../components/LotteryResultsHistory";
 import { BettingInterface } from "../components/BettingInterface";
 import { WingoBetting } from "../components/WingoBetting";
 import { WingoHistory } from "../components/WingoHistory";
+import { WingoCountdownTimer } from "../components/WingoCountdownTimer";
 import { CountdownTimer } from "../components/CountdownTimer";
 import { LoginForm } from "../components/LoginForm";
 import { UserRegistrationForm } from "../components/UserRegistrationForm";
@@ -37,6 +38,7 @@ interface WingoBet {
   value: string;
   amount: number;
   multiplier: number;
+  period: '30s' | '1min' | '3min' | '5min';
 }
 
 const Index = () => {
@@ -44,6 +46,7 @@ const Index = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showRegister, setShowRegister] = useState(false);
   const [currentView, setCurrentView] = useState<'wingo' | '2d' | 'history' | 'results-history' | 'admin'>('wingo');
+  const [selectedWingoPeriod, setSelectedWingoPeriod] = useState<'30s' | '1min' | '3min' | '5min'>('1min');
   const [nextDrawTime, setNextDrawTime] = useState("11:00 AM");
   const [showWinningAnimation, setShowWinningAnimation] = useState(false);
   const [winningAmount, setWinningAmount] = useState(0);
@@ -341,14 +344,14 @@ const Index = () => {
     }
 
     try {
-      // Format bet number based on type
+      // Format bet number based on type and period
       let betNumber = '';
       if (bet.type === 'color') {
-        betNumber = `color_${bet.value}`;
+        betNumber = `${bet.period}_color_${bet.value}`;
       } else if (bet.type === 'number') {
-        betNumber = bet.value.padStart(2, '0');
+        betNumber = `${bet.period}_${bet.value.padStart(2, '0')}`;
       } else {
-        betNumber = `size_${bet.value}`;
+        betNumber = `${bet.period}_size_${bet.value}`;
       }
 
       const { error } = await supabase
@@ -498,9 +501,12 @@ const Index = () => {
         
         {currentView === 'wingo' && (
           <div className="max-w-2xl mx-auto space-y-6">
+            <WingoCountdownTimer period={selectedWingoPeriod} />
             <WingoBetting
               onPlaceBet={handlePlaceWingoBet}
               userBalance={userProfile?.balance || 0}
+              selectedPeriod={selectedWingoPeriod}
+              onPeriodChange={setSelectedWingoPeriod}
             />
             <WingoHistory />
           </div>
